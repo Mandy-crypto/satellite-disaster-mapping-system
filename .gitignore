@@ -1,0 +1,28 @@
+# Local secrets and developer settings
+.env
+.env.*
+!.env.example
+
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Runtime data, databases and logs
+data/
+output/
+demo_output/
+demo_output_api/
+*.sqlite
+*.sqlite3
+*.db
+water_level_detector/logs/*.log
+
+# Editor and operating system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

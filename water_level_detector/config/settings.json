@@ -1,0 +1,37 @@
+{
+  "camera": {
+    "index": 0,
+    "width": 640,
+    "height": 480,
+    "fps": 15,
+    "use_picamera": false
+  },
+  "detection": {
+    "hsv_lower": [80, 50, 50],
+    "hsv_upper": [140, 255, 255],
+    "minimum_contour_area": 1000,
+    "smoothing_kernel": 5
+  },
+  "calibration": {
+    "reference_height_cm": 100.0,
+    "reference_pixels": 200.0,
+    "zero_offset_cm": 0.0,
+    "invert": false
+  },
+  "sensor": {
+    "sensor_id": "RPI_WATER_001",
+    "latitude": 23.181,
+    "longitude": 79.951
+  },
+  "mqtt": {
+    "enabled": true,
+    "host": "localhost",
+    "port": 1883,
+    "topic": "sensor/data",
+    "keepalive_seconds": 60
+  },
+  "web": {
+    "host": "127.0.0.1",
+    "port": 5000
+  }
+}

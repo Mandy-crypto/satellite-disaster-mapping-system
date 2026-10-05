@@ -1,0 +1,1064 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌊 Disaster Risk Dashboard - SIH 2026</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ===== RESET ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #0a0e27, #1a1a4e, #0d1b3e);
+            min-height: 100vh; 
+            padding: 20px;
+        }
+        .dashboard { max-width: 1500px; margin: 0 auto; }
+        .region-overview { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 20px; }
+        .region-feed { background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 18px;min-width:0; }
+        .region-feed h3 { color:#c7cbe3;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px; }
+        .region-feed strong { display:block;color:#fff;font-size:25px;line-height:1.2; }
+        .region-feed small { display:block;color:#aeb6d0;font-size:11px;margin-top:7px;line-height:1.4; }
+        .region-scope { color:#c6cbe0;font-size:12px;margin:-8px 0 12px; }
+        @media (max-width: 760px) { .region-overview { grid-template-columns:1fr 1fr; } }
+        
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 30px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+        .header-left h1 {
+            font-size: 28px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-left h1 i { color: #00d4ff; }
+        .header-left p {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .header-badge {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 18px;
+            border-radius: 50px;
+            color: white;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+        
+        /* ===== STATS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(15px);
+            padding: 15px 10px;
+            border-radius: 14px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.3s;
+            cursor: default;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255,255,255,0.2);
+        }
+        .stat-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+        .stat-value { font-size: 24px; font-weight: 800; color: white; display: block; }
+        .stat-label { font-size: 9px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+        .stat-critical .stat-value { color: #ff4757; }
+        .stat-high .stat-value { color: #ff6b35; }
+        .stat-medium .stat-value { color: #ffd93d; }
+        .stat-low .stat-value { color: #2ed573; }
+        .stat-primary .stat-value { color: #7c5cfc; }
+        .stat-info .stat-value { color: #54a0ff; }
+        .stat-success .stat-value { color: #2ed573; }
+        
+        /* ===== BUTTONS ===== */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            background: rgba(124, 92, 252, 0.3);
+            border-color: #7c5cfc;
+            transform: translateY(-2px);
+        }
+        .btn-primary { background: #7c5cfc; border-color: #7c5cfc; }
+        .btn-primary:hover { background: #6a4cf0; }
+        .btn-success { background: #2ed573; border-color: #2ed573; color: #0a0e27; }
+        .btn-success:hover { background: #26c56a; }
+        .btn-danger { background: #ff4757; border-color: #ff4757; }
+        .btn-danger:hover { background: #e53a4a; }
+        .btn-warning { background: #ff6b35; border-color: #ff6b35; }
+        .btn-warning:hover { background: #e55a2b; }
+        
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 20px;
+        }
+        
+        /* ===== MAP ===== */
+        .map-container {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(15px);
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .map-container h2 {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .map-container h2 i { color: #7c5cfc; }
+        #map {
+            height: 420px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.06);
+        }
+        
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin: 12px 0 0 0;
+            flex-wrap: wrap;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+        }
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+        
+        /* ===== RIGHT PANEL ===== */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        
+        /* ===== ALERTS ===== */
+        .alerts-container {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(15px);
+            border-radius: 18px;
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            max-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        .alerts-container h2 {
+            color: white;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .alerts-container h2 i { color: #ff6b6b; }
+        .alert-count {
+            background: #ff4757;
+            color: white;
+            font-size: 10px;
+            padding: 1px 10px;
+            border-radius: 50px;
+        }
+        .alerts-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .alerts-scroll::-webkit-scrollbar { width: 3px; }
+        .alerts-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .alerts-scroll::-webkit-scrollbar-thumb { background: #7c5cfc; border-radius: 10px; }
+        
+        .alert-item {
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid;
+            animation: slideIn 0.5s ease-out;
+        }
+        .alert-item.critical { background: rgba(255,71,87,0.15); border-left-color: #ff4757; }
+        .alert-item.high { background: rgba(255,107,53,0.15); border-left-color: #ff6b35; }
+        .alert-item.medium { background: rgba(255,217,61,0.12); border-left-color: #ffd93d; }
+        .alert-item.low { background: rgba(46,213,115,0.12); border-left-color: #2ed573; }
+        .alert-title { font-weight: 700; font-size: 12px; color: white; }
+        .alert-message { font-size: 11px; color: rgba(255,255,255,0.65); margin: 3px 0; }
+        .alert-time { font-size: 9px; color: rgba(255,255,255,0.3); }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-15px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        /* ===== SENSOR DATA ===== */
+        .sensor-container {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(15px);
+            border-radius: 18px;
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            max-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sensor-container h2 {
+            color: white;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .sensor-container h2 i { color: #54a0ff; }
+        .sensor-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .sensor-scroll::-webkit-scrollbar { width: 3px; }
+        .sensor-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .sensor-scroll::-webkit-scrollbar-thumb { background: #54a0ff; border-radius: 10px; }
+        
+        .sensor-item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            background: rgba(255,255,255,0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sensor-item .name { color: white; font-size: 12px; font-weight: 600; }
+        .sensor-item .data { color: rgba(255,255,255,0.6); font-size: 11px; }
+        .sensor-item .risk-badge {
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .risk-critical { background: #ff4757; color: white; }
+        .risk-high { background: #ff6b35; color: white; }
+        .risk-medium { background: #ffd93d; color: #0a0e27; }
+        .risk-low { background: #2ed573; color: #0a0e27; }
+        
+        /* ===== RESULT BOX ===== */
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+            padding: 15px;
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+            .main-content { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .header { flex-direction: column; text-align: center; }
+            #map { height: 300px; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .btn-group { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+        <div class="header-left">
+            <h1><i class="fas fa-satellite-dish"></i> Disaster Risk Dashboard</h1>
+            <p>Satellite-Assisted Mapping System · Public feeds, imported imagery, and sensor readings · SIH 2026</p>
+        </div>
+        <div class="header-right">
+            <div class="header-badge"><span class="live-dot"></span> REGION VIEW</div>
+            <div class="header-badge"><i class="fas fa-clock"></i> <span id="currentTime"></span></div>
+            <div class="header-badge" id="apiStatus"><i class="fas fa-wifi"></i> API checking...</div>
+            <div class="header-badge" id="wsStatus">
+                <i class="fas fa-plug"></i> Connecting...
+            </div>
+        </div>
+    </div>
+
+    <div id="serverNotice" role="status" style="display:none;margin:0 0 18px;padding:14px 18px;border:1px solid #ffbf47;border-radius:12px;background:#3b2d19;color:#ffe3a3;line-height:1.5">
+        This dashboard was opened as a local file, so API data and live updates cannot load. Start the backend, then open
+        <a href="http://127.0.0.1:8000/static/dashboard.html" style="color:white;font-weight:700">http://127.0.0.1:8000/static/dashboard.html</a>.
+    </div>
+
+    <!-- ===== STATS ===== -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card stat-primary">
+            <span class="stat-icon">🌍</span>
+            <span class="stat-value" id="totalArea">—</span>
+            <span class="stat-label">Satellite Scene Area (km²)</span>
+        </div>
+        <div class="stat-card stat-info">
+            <span class="stat-icon">🌊</span>
+            <span class="stat-value" id="affectedArea">—</span>
+            <span class="stat-label">Flood Area (km²)</span>
+        </div>
+        <div class="stat-card stat-critical">
+            <span class="stat-icon">🔴</span>
+            <span class="stat-value" id="criticalZones">—</span>
+            <span class="stat-label">Critical Zones</span>
+        </div>
+        <div class="stat-card stat-high">
+            <span class="stat-icon">🟠</span>
+            <span class="stat-value" id="highZones">—</span>
+            <span class="stat-label">High Zones</span>
+        </div>
+        <div class="stat-card stat-medium">
+            <span class="stat-icon">🟡</span>
+            <span class="stat-value" id="mediumZones">—</span>
+            <span class="stat-label">Medium Zones</span>
+        </div>
+        <div class="stat-card stat-low">
+            <span class="stat-icon">🟢</span>
+            <span class="stat-value" id="lowZones">—</span>
+            <span class="stat-label">Low Zones</span>
+        </div>
+        <div class="stat-card stat-info">
+            <span class="stat-icon">📡</span>
+            <span class="stat-value" id="activeSensors">0</span>
+            <span class="stat-label">Sensor Stations</span>
+        </div>
+        <div class="stat-card stat-success">
+            <span class="stat-icon">🎯</span>
+            <span class="stat-value" id="confidence">—</span>
+            <span class="stat-label">Analysis Confidence</span>
+        </div>
+    </div>
+
+    <p class="region-scope" id="regionScope">Regional public data around Jabalpur, Madhya Pradesh</p>
+    <div class="region-overview" aria-label="Public data for the selected region">
+        <div class="region-feed"><h3>Current temperature</h3><strong id="regionTemperature">—</strong><small id="regionTemperatureSource">Open-Meteo model data loading…</small></div>
+        <div class="region-feed"><h3>Rain in the last hour</h3><strong id="regionRainfall">—</strong><small id="regionRainSource">Open-Meteo model data loading…</small></div>
+        <div class="region-feed"><h3>CWC river stations</h3><strong id="regionGauges">—</strong><small id="regionGaugeSource">Fetching source readings and freshness…</small></div>
+        <div class="region-feed"><h3>Nearby earthquakes</h3><strong id="regionQuakes">—</strong><small id="regionQuakeSource">USGS events in the last day, within region radius</small></div>
+    </div>
+    <div id="assessmentNotice" role="status" style="display:none;margin:0 0 18px;padding:12px 16px;border:1px solid #7180b9;border-radius:12px;background:#20264a;color:#dfe5ff;line-height:1.5"></div>
+
+    <!-- ===== BUTTONS ===== -->
+    <div class="btn-group">
+        <button class="btn btn-primary" onclick="loadAll()"><i class="fas fa-sync"></i> Load All Data</button>
+        <button class="btn btn-success" onclick="getSensors()"><i class="fas fa-microchip"></i> Sensors</button>
+        <button class="btn btn-warning" onclick="getEarthquakes()"><i class="fas fa-wave-square"></i> Earthquakes</button>
+        <button class="btn" onclick="getWeather()"><i class="fas fa-cloud-sun"></i> Weather</button>
+        <button class="btn" onclick="getRiverLevels()"><i class="fas fa-water"></i> CWC river gauges</button>
+        <button class="btn" onclick="getIndiaWarnings()"><i class="fas fa-triangle-exclamation"></i> IMD warnings</button>
+        <a class="btn" href="/docs" title="Upload and analyze georeferenced satellite imagery">Satellite upload / processing</a>
+        <button class="btn btn-danger" onclick="getAlerts()"><i class="fas fa-bell"></i> Alerts</button>
+        <button class="btn" onclick="testWebSocket()"><i class="fas fa-plug"></i> Test WS</button>
+        <button class="btn" onclick="clearResult()"><i class="fas fa-eraser"></i> Clear</button>
+    </div>
+
+    <!-- ===== MAIN ===== -->
+    <div class="main-content">
+        
+        <!-- MAP -->
+        <div class="map-container">
+            <h2><i class="fas fa-map"></i> Interactive Risk Map</h2>
+            <div id="map"></div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color" style="background:#ff4757;"></div> CRITICAL</div>
+                <div class="legend-item"><div class="legend-color" style="background:#ff6b35;"></div> HIGH</div>
+                <div class="legend-item"><div class="legend-color" style="background:#ffd93d;"></div> MEDIUM</div>
+                <div class="legend-item"><div class="legend-color" style="background:#2ed573;"></div> LOW</div>
+                <div class="legend-item"><div class="legend-color" style="background:#7c5cfc;border-color:#7c5cfc;"></div> MQTT sensors</div>
+                <div class="legend-item"><div class="legend-color" style="background:#00d4ff;border-color:#00d4ff;"></div> CWC river gauges</div>
+                <div class="legend-item" style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:10px;">
+                    <i class="fas fa-mouse-pointer"></i> Click for details
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+            
+            <!-- Alerts -->
+            <div class="alerts-container">
+                <h2><i class="fas fa-bell"></i> Active Alerts <span class="alert-count" id="alertCount">0</span></h2>
+                <div class="alerts-scroll" id="alertsList">
+                    <div style="color:rgba(255,255,255,0.3);font-size:12px;text-align:center;padding:20px;">
+                        No active alerts
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sensors -->
+            <div class="sensor-container">
+                <h2><i class="fas fa-microchip"></i> Sensor Data <span class="alert-count" id="sensorCount">0</span></h2>
+                <div class="sensor-scroll" id="sensorList">
+                    <div style="color:rgba(255,255,255,0.3);font-size:12px;text-align:center;padding:20px;">
+                        No sensors connected
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== RESULT BOX ===== -->
+    <div id="result" class="result-box">Click a button above to fetch data...</div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+        <span id="footerTime"></span> · v2.1.0 · 🛰️ Satellite-Assisted Disaster Mapping System
+    </div>
+</div>
+
+<!-- ============================================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+// =============================================
+// CLOCK
+// =============================================
+function updateClock() {
+    const now = new Date();
+    document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-IN', { hour12: true });
+    document.getElementById('footerTime').textContent = '🕐 ' + now.toLocaleString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+if (window.location.protocol === 'file:') {
+    document.getElementById('serverNotice').style.display = 'block';
+    document.getElementById('result').textContent = 'Open this dashboard from the running backend at http://127.0.0.1:8000/static/dashboard.html. Opening the HTML file directly prevents API requests from working.';
+}
+
+// =============================================
+// MAP
+// =============================================
+let map;
+let sensorMarkers = [];
+let riverMarkers = [];
+let regionBoundary = null;
+const PROJECT_REGION = { name: 'Jabalpur, Madhya Pradesh', latitude: 23.181, longitude: 79.951, radius_km: 250 };
+
+function initMap() {
+    map = L.map('map').setView([PROJECT_REGION.latitude, PROJECT_REGION.longitude], 7);
+    // Use Esri's street basemap instead of the OSM volunteer tile server,
+    // which blocks applications that don't meet its tile usage policy.
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: 'Sources: <a href="https://www.esri.com/">Esri</a>, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China, Esri Korea, NGCC, <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>, and the GIS User Community'
+    }).addTo(map);
+}
+initMap();
+
+function updateProjectRegion(region) {
+    Object.assign(PROJECT_REGION, region || {});
+    const radius = Number(PROJECT_REGION.radius_km) || 250;
+    document.getElementById('regionScope').textContent = `${PROJECT_REGION.name} · public readings within ${radius} km of the region center`;
+    if (regionBoundary) map.removeLayer(regionBoundary);
+    regionBoundary = L.circle([PROJECT_REGION.latitude, PROJECT_REGION.longitude], {
+        radius: radius * 1000, color: '#9d8aff', weight: 2, dashArray: '7 7', fillColor: '#7c5cfc', fillOpacity: 0.04
+    }).addTo(map);
+    map.fitBounds(regionBoundary.getBounds(), { padding: [15, 15] });
+}
+
+// =============================================
+// UPDATE STATS
+// =============================================
+function updateStats(data) {
+    if (!data) return;
+    document.getElementById('criticalZones').textContent = data.critical ?? '—';
+    document.getElementById('highZones').textContent = data.high ?? '—';
+    document.getElementById('mediumZones').textContent = data.medium ?? '—';
+    document.getElementById('lowZones').textContent = data.low ?? '—';
+    document.getElementById('activeSensors').textContent = data.sensors || 0;
+}
+
+// =============================================
+// CLEAR
+// =============================================
+function clearResult() {
+    document.getElementById('result').innerHTML = 'Click a button above to fetch data...';
+}
+
+// =============================================
+// LOAD ALL
+// =============================================
+async function loadAll() {
+    document.getElementById('result').textContent = 'Loading dashboard data…';
+    try {
+        const regionResponse = await fetch('/api/dashboard/statistics');
+        if (!regionResponse.ok) throw new Error(`API returned ${regionResponse.status}`);
+        const regionInfo = await regionResponse.json();
+        updateProjectRegion(regionInfo.region);
+        document.getElementById('apiStatus').innerHTML = '<i class="fas fa-wifi"></i> API connected';
+    } catch (error) {
+        document.getElementById('apiStatus').innerHTML = '<i class="fas fa-triangle-exclamation"></i> API unavailable';
+        document.getElementById('result').textContent = `Cannot reach the backend API: ${error.message}. Start the server and open this dashboard from http://127.0.0.1:8000/.`;
+        return;
+    }
+    const results = await Promise.allSettled([
+        getSensors({ quiet: true }),
+        getRiverLevels({ quiet: true }),
+        getIndiaWarnings({ quiet: true }),
+        getRiskStatistics(),
+        getRegionOverview(),
+        getEarthquakes({ quiet: true }),
+        getWeather({ quiet: true }),
+        getAlerts({ quiet: true })
+    ]);
+    const failures = results.filter(result => result.status === 'rejected');
+    document.getElementById('result').textContent = failures.length
+        ? `Dashboard loaded with ${failures.length} unavailable section(s). Check the affected panel or provider connection.`
+        : 'Dashboard data refreshed. Each panel shows its source and availability.';
+}
+
+// =============================================
+// GET SENSORS
+// =============================================
+async function getSensors(options = {}) {
+    if (!options.quiet) document.getElementById('result').textContent = 'Fetching sensors…';
+    try {
+        const res = await fetch(`/api/live/sensors?lat=${PROJECT_REGION.latitude}&lon=${PROJECT_REGION.longitude}&radius_km=${PROJECT_REGION.radius_km}`);
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+        const data = await res.json();
+        
+        if (data.status === 'success' && data.sensors) {
+            const container = document.getElementById('sensorList');
+            document.getElementById('sensorCount').textContent = data.count;
+            
+            if (data.count === 0) {
+                container.innerHTML = '<div style="color:rgba(255,255,255,0.55);font-size:12px;text-align:center;padding:20px;">No readings in the selected region</div>';
+            } else {
+                let html = '';
+                (data.readings || []).forEach(reading => {
+                    const level = reading.risk_level || 'LOW';
+                    const levelClass = level.toLowerCase();
+                    html += `
+                        <div class="sensor-item">
+                            <span class="name">📡 ${reading.sensor_id}<small style="display:block;color:#9aa4b2;font-weight:400">${reading.temperature_c}°C · ${reading.water_level_cm} cm · ${reading.timestamp || ''}</small></span>
+                            <span class="risk-badge risk-${levelClass}">${level || 'LOW'}</span>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+            
+            const summary = data.risk_summary || {CRITICAL:0, HIGH:0, MEDIUM:0, LOW:0};
+            if (data.count > 0) updateStats({
+                critical: summary.CRITICAL || 0,
+                high: summary.HIGH || 0,
+                medium: summary.MEDIUM || 0,
+                low: summary.LOW || 0,
+                sensors: data.count
+            });
+            
+            updateMapWithSensors(data.readings || []);
+            
+            if (!options.quiet) document.getElementById('result').textContent =
+                `Sensors loaded: ${data.count} active\n${JSON.stringify(data.risk_summary, null, 2)}`;
+        } else {
+            if (!options.quiet) document.getElementById('result').textContent = 'No sensors found. Imported readings and public feeds remain available.';
+        }
+    } catch(e) {
+        document.getElementById('sensorList').innerHTML = '<div style="color:#ff9aa8;padding:14px">Sensor API unavailable</div>';
+        if (!options.quiet) document.getElementById('result').textContent = 'Sensor API error: ' + e.message;
+        else throw e;
+    }
+}
+
+// =============================================
+// UPDATE MAP
+// =============================================
+function updateMapWithSensors(readings) {
+    sensorMarkers.forEach(m => map.removeLayer(m));
+    sensorMarkers = [];
+    if (!readings || readings.length === 0) return;
+    const colors = {CRITICAL:'#ff4757', HIGH:'#ff6b35', MEDIUM:'#ffd93d', LOW:'#7c5cfc'};
+    readings.forEach(reading => {
+        if (!Number.isFinite(Number(reading.latitude)) || !Number.isFinite(Number(reading.longitude))) return;
+        const level = reading.risk_level || 'LOW';
+        const color = colors[level] || '#7c5cfc';
+        const marker = L.circleMarker([Number(reading.latitude), Number(reading.longitude)], {
+            radius: 10,
+            fillColor: color,
+            color: 'white',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9
+        }).addTo(map);
+        
+        marker.bindPopup(`
+            <div style="font-family:Segoe UI;font-size:13px;">
+                <b>${reading.sensor_id}</b><br>Source: MQTT sensor<br>
+                Rainfall: ${reading.rainfall_mm ?? '—'} mm<br>
+                Water level: ${reading.water_level_cm ?? '—'} cm<br>
+                Risk score: ${reading.risk_score ?? '—'} (${level})<br>
+                Reading: ${reading.timestamp || 'time unavailable'}
+            </div>
+        `);
+        
+        sensorMarkers.push(marker);
+    });
+}
+
+async function getRiverLevels(options = {}) {
+    if (!options.quiet) document.getElementById('result').textContent = 'Fetching public CWC/NWIC river gauge readings…';
+    try {
+        const res = await fetch('/api/live/river-levels?lat=23.181&lon=79.951&radius_km=250');
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'River data unavailable');
+        riverMarkers.forEach(marker => map.removeLayer(marker));
+        riverMarkers = [];
+        (data.stations || []).forEach(station => {
+            const marker = L.circleMarker([station.latitude, station.longitude], {
+                radius: 8, fillColor: station.stale ? '#8b94a8' : '#00d4ff', color: 'white', weight: 2, fillOpacity: 0.9
+            }).addTo(map);
+            marker.bindPopup(`<b>${station.station_name}</b><br>${station.river} river, ${station.district}<br>Gauge elevation: ${station.gauge_level_m} m<br>Observed: ${station.timestamp || 'unknown'}<br>${station.stale ? '<b>STALE: older than 24 hours</b><br>' : ''}${station.source}<br><small>Not a flood-depth or warning value</small>`);
+            riverMarkers.push(marker);
+        });
+        const latest = (data.stations || []).slice(0, 6).map(s => `${s.station_name}: ${s.gauge_level_m} m · ${s.timestamp || 'time unavailable'}${s.stale ? ' · STALE (>24 h)' : ''}`).join('\n');
+        const panel = `CWC/NWIC ${data.basin} telemetry: ${data.count} nearby station(s)\n${latest || 'No stations were returned for this area.'}\n\n${data.note || ''}`;
+        if (!options.quiet) document.getElementById('result').textContent = panel;
+    } catch (e) {
+        if (!options.quiet) document.getElementById('result').textContent = 'River feed error: ' + e.message;
+        throw e;
+    }
+}
+
+async function getRiskStatistics() {
+    try {
+        const res = await fetch(`/api/dashboard/statistics?lat=${PROJECT_REGION.latitude}&lon=${PROJECT_REGION.longitude}&radius_km=${PROJECT_REGION.radius_km}`);
+        const data = await res.json();
+        if (!res.ok || !data.statistics) return;
+        const s = data.statistics;
+        const riskValue = value => value == null ? '—' : value;
+        document.getElementById('criticalZones').textContent = riskValue(s.critical_zones);
+        document.getElementById('highZones').textContent = riskValue(s.high_zones);
+        document.getElementById('mediumZones').textContent = riskValue(s.medium_zones);
+        document.getElementById('lowZones').textContent = riskValue(s.low_zones);
+        document.getElementById('activeSensors').textContent = s.active_sensors;
+        document.getElementById('confidence').textContent = s.avg_confidence ? `${Math.round(s.avg_confidence * 100)}%` : '—';
+        document.getElementById('totalArea').textContent = s.total_area_km2 == null ? 'No scene' : `${Number(s.total_area_km2).toFixed(2)}`;
+        document.getElementById('affectedArea').textContent = s.affected_area_km2 == null ? 'No result' : `${Number(s.affected_area_km2).toFixed(2)}`;
+        const notice = document.getElementById('assessmentNotice');
+        notice.style.display = 'block';
+        notice.textContent = s.assessment_status === 'no_assessment'
+            ? `No satellite scene or sensor observations have been assessed within ${PROJECT_REGION.radius_km} km of ${PROJECT_REGION.name}. Weather, USGS earthquakes, and CWC gauge records below are regional context; they do not by themselves produce a flood-risk score.`
+            : `Risk counts use sensor/risk-zone data within ${PROJECT_REGION.radius_km} km. Satellite area is included only after processing an image with georeferencing.`;
+    } catch (e) { console.warn('Risk statistics unavailable', e); throw e; }
+}
+
+async function getRegionOverview() {
+    const q = `lat=${PROJECT_REGION.latitude}&lon=${PROJECT_REGION.longitude}&radius_km=${PROJECT_REGION.radius_km}`;
+    const results = await Promise.allSettled([
+        fetch(`/api/live/weather?lat=${PROJECT_REGION.latitude}&lon=${PROJECT_REGION.longitude}`).then(async r => { if (!r.ok) throw new Error(`Weather ${r.status}`); return r.json(); }),
+        fetch(`/api/live/river-levels?${q}`).then(async r => { if (!r.ok) throw new Error(`CWC ${r.status}`); return r.json(); }),
+        fetch(`/api/live/earthquakes/near?${q}&min_magnitude=2.5`).then(async r => { if (!r.ok) throw new Error(`USGS ${r.status}`); return r.json(); })
+    ]);
+    const [weather, rivers, quakes] = results.map(result => result.status === 'fulfilled' ? result.value : null);
+    if (weather?.data) {
+        document.getElementById('regionTemperature').textContent = `${weather.data.temperature_c ?? '—'} °C`;
+        document.getElementById('regionTemperatureSource').textContent = `Open-Meteo model · ${weather.data.observed_at || 'time unavailable'} (${weather.data.timezone || 'provider time'})`;
+        document.getElementById('regionRainfall').textContent = `${weather.data.rainfall_mm ?? '—'} mm`;
+        document.getElementById('regionRainSource').textContent = 'Open-Meteo model precipitation for the preceding hour';
+    } else {
+        document.getElementById('regionTemperatureSource').textContent = 'Weather feed unavailable';
+        document.getElementById('regionRainSource').textContent = 'Weather feed unavailable';
+    }
+    if (rivers) {
+        const staleCount = (rivers.stations || []).filter(station => station.stale).length;
+        document.getElementById('regionGauges').textContent = rivers.count;
+        document.getElementById('regionGaugeSource').textContent = `CWC/NWIC Narmada basin · ${staleCount} of ${rivers.count} records older than 24 hours`;
+    } else document.getElementById('regionGaugeSource').textContent = 'CWC/NWIC feed unavailable';
+    if (quakes) {
+        document.getElementById('regionQuakes').textContent = quakes.count;
+        document.getElementById('regionQuakeSource').textContent = `USGS M2.5+ events within ${PROJECT_REGION.radius_km} km · past-day feed`;
+    } else document.getElementById('regionQuakeSource').textContent = 'USGS earthquake feed unavailable';
+}
+
+async function getIndiaWarnings(options = {}) {
+    if (!options.quiet) document.getElementById('result').textContent = 'Fetching IMD district warnings…';
+    try {
+        const res = await fetch('/api/live/india-warnings');
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'IMD feed unavailable');
+        if (data.status === 'unconfigured') {
+            if (!options.quiet) document.getElementById('result').textContent = `${data.message}\nRegister: https://api.imd.gov.in/public/index.php`;
+            return;
+        }
+        const warningSummary = `Official IMD warnings (${data.count})\n` +
+            (data.warnings || []).slice(0, 12).map(w => `${w.District || w.district || 'District'}: ${w.Day_1 || w.day1_warning || 'See warning details'}`).join('\n');
+        if (!options.quiet) document.getElementById('result').textContent = warningSummary;
+    } catch (e) { if (!options.quiet) document.getElementById('result').textContent = 'IMD warning error: ' + e.message; throw e; }
+}
+
+// =============================================
+// GET EARTHQUAKES
+// =============================================
+async function getEarthquakes(options = {}) {
+    if (!options.quiet) document.getElementById('result').textContent = 'Fetching earthquakes…';
+    try {
+        const res = await fetch('/api/live/earthquakes?limit=5');
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+        const data = await res.json();
+        
+        if (data.status === 'success' && data.earthquakes) {
+            let html = '🌍 Recent Earthquakes:\n';
+            data.earthquakes.forEach(eq => {
+                html += `   M${eq.magnitude} at ${eq.place}\n`;
+            });
+            if (!options.quiet) document.getElementById('result').textContent = html;
+        } else {
+            if (!options.quiet) document.getElementById('result').textContent = 'No recent earthquakes.';
+        }
+    } catch(e) {
+        if (!options.quiet) document.getElementById('result').textContent = 'Earthquake feed error: ' + e.message;
+        throw e;
+    }
+}
+
+// =============================================
+// GET WEATHER
+// =============================================
+async function getWeather(options = {}) {
+    if (!options.quiet) document.getElementById('result').textContent = 'Fetching weather…';
+    try {
+        const res = await fetch('/api/live/weather?lat=23.181&lon=79.951');
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || `API returned ${res.status}`);
+        
+        if (data.data) {
+            if (!options.quiet) document.getElementById('result').textContent =
+                `🌤️ Weather (${data.data.source || 'public weather provider'}):\n` +
+                `   Temperature: ${data.data.temperature_c}°C\n` +
+                `   Humidity: ${data.data.humidity}%\n` +
+                `   Rainfall: ${data.data.rainfall_mm}mm\n` +
+                `   Wind: ${data.data.wind_speed_mps} m/s\n` +
+                `   Condition: ${data.data.weather_condition}\n` +
+                `   Provider time: ${data.data.observed_at || 'not supplied'}\n` +
+                `   This is model-based weather, not a local station reading.`;
+        } else {
+            if (!options.quiet) document.getElementById('result').textContent = 'No weather data available';
+        }
+    } catch(e) {
+        if (!options.quiet) document.getElementById('result').textContent = 'Weather feed error: ' + e.message;
+        throw e;
+    }
+}
+
+// =============================================
+// GET ALERTS
+// =============================================
+async function getAlerts(options = {}) {
+    if (!options.quiet) document.getElementById('result').textContent = 'Fetching alerts…';
+    try {
+        const res = await fetch('/api/dashboard/alerts');
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+        const data = await res.json();
+        
+        const container = document.getElementById('alertsList');
+        document.getElementById('alertCount').textContent = data.count || 0;
+        
+        if (data.alerts && data.alerts.length > 0) {
+            let html = '';
+            data.alerts.forEach(alert => {
+                const level = alert.risk_level ? alert.risk_level.toLowerCase() : 'low';
+                html += `
+                    <div class="alert-item ${level}">
+                        <div class="alert-title">${alert.risk_level || 'INFO'}</div>
+                        <div class="alert-message">${alert.message || 'No message'}</div>
+                        <div class="alert-time">${alert.generated_at ? new Date(alert.generated_at).toLocaleTimeString() : ''}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            if (!options.quiet) document.getElementById('result').textContent = `${data.count} alerts loaded`;
+        } else {
+            container.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:12px;text-align:center;padding:20px;">No active alerts</div>';
+            if (!options.quiet) document.getElementById('result').textContent = 'No active alerts';
+        }
+    } catch(e) {
+        if (!options.quiet) document.getElementById('result').textContent = 'Alert API error: ' + e.message;
+        throw e;
+    }
+}
+
+// =============================================
+// WEBSOCKET CONNECTION
+// =============================================
+
+let ws = null;
+let wsReconnectTimer = null;
+let wsConnected = false;
+let wsPingInterval = null;
+
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/all`;
+    
+    try {
+        ws = new WebSocket(wsUrl);
+        
+        ws.onopen = function() {
+            wsConnected = true;
+            console.log('✅ WebSocket connected');
+            document.getElementById('wsStatus').innerHTML = '<i class="fas fa-plug"></i> 🟢 Live';
+            
+            if (wsPingInterval) clearInterval(wsPingInterval);
+            wsPingInterval = setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send('ping');
+                }
+            }, 30000);
+        };
+        
+        ws.onmessage = function(event) {
+            try {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            } catch(e) {
+                console.error('❌ WebSocket parse error:', e);
+            }
+        };
+        
+        ws.onclose = function() {
+            wsConnected = false;
+            console.log('❌ WebSocket disconnected');
+            document.getElementById('wsStatus').innerHTML = '<i class="fas fa-plug"></i> 🔴 Offline';
+            
+            if (wsReconnectTimer) clearTimeout(wsReconnectTimer);
+            wsReconnectTimer = setTimeout(() => {
+                console.log('🔄 Reconnecting WebSocket...');
+                connectWebSocket();
+            }, 5000);
+        };
+        
+        ws.onerror = function(error) {
+            console.error('❌ WebSocket error:', error);
+        };
+        
+    } catch(e) {
+        console.error('❌ WebSocket connection failed:', e);
+    }
+}
+
+function handleWebSocketMessage(data) {
+    console.log('📨 WebSocket message:', data.type);
+    
+    switch(data.type) {
+        case 'connection_established':
+            console.log('✅ Connection established:', data.message);
+            break;
+            
+        case 'sensor_update':
+            console.log('📡 Sensor update received');
+            updateSensorDisplay(data.data);
+            getSensors();
+            break;
+            
+        case 'new_alert':
+            console.log('🔔 New alert received');
+            addAlertToUI(data.data);
+            break;
+            
+        case 'risk_update':
+            console.log('🗺️ Risk update received');
+            updateRiskMap(data.data);
+            break;
+            
+        case 'initial_data':
+            console.log('📦 Initial data received');
+            if (data.data) {
+                if (data.data.risk) {
+                    console.log('  ✅ Risk data loaded');
+                    updateRiskMap(data.data.risk);
+                }
+                if (data.data.alerts) {
+                    console.log('  ✅ Alerts loaded');
+                    loadAlerts(data.data.alerts);
+                }
+                if (data.data.sensors) {
+                    console.log('  ✅ Sensor status loaded');
+                    updateSensorStatus(data.data.sensors);
+                }
+            }
+            break;
+            
+        case 'pong':
+            // Keep-alive response - ignore
+            break;
+            
+        case 'echo':
+            // Echo response - ignore
+            break;
+            
+        default:
+            console.log('📨 Unknown message type:', data.type, data);
+    }
+}
+
+function updateSensorDisplay(data) {
+    console.log('📡 Sensor update:', data);
+}
+
+function addAlertToUI(alert) {
+    const alertsList = document.getElementById('alertsList');
+    if (!alertsList) return;
+    
+    const level = alert.risk_level?.toLowerCase() || 'high';
+    const div = document.createElement('div');
+    div.className = `alert-item ${level}`;
+    div.innerHTML = `
+        <div class="alert-title">${alert.risk_level || 'ALERT'}</div>
+        <div class="alert-message">${alert.message}</div>
+        <div class="alert-time">${new Date(alert.generated_at).toLocaleTimeString()}</div>
+    `;
+    alertsList.prepend(div);
+    
+    const count = document.getElementById('alertCount');
+    if (count) {
+        count.textContent = parseInt(count.textContent || 0) + 1;
+    }
+}
+
+function updateRiskMap(data) {
+    console.log('🗺️ Updating risk map:', data);
+}
+
+function updateSensorStatus(data) {
+    console.log('📡 Sensor status:', data);
+}
+
+function loadAlerts(data) {
+    console.log('🔔 Loading alerts:', data);
+}
+
+function testWebSocket() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send('ping');
+        document.getElementById('result').innerHTML = '✅ WebSocket ping sent!';
+    } else {
+        document.getElementById('result').innerHTML = '❌ WebSocket not connected!';
+        connectWebSocket();
+    }
+}
+
+// =============================================
+// INITIALIZE WEBSOCKET
+// =============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    connectWebSocket();
+});
+
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && !wsConnected) {
+        connectWebSocket();
+    }
+});
+
+// =============================================
+// AUTO LOAD
+// =============================================
+setTimeout(() => {
+    loadAll();
+}, 500);
+</script>
+</body>
+</html>

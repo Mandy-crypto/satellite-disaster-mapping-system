@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.git/
+.pytest_cache/
+.mypy_cache/
+data/
+output/
+demo_output/
+demo_output_api/
+water_level_detector/logs/
