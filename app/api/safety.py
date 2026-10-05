@@ -85,15 +85,13 @@ def _distance_km(lat1, lon1, lat2, lon2):
 @router.get("/capabilities")
 async def capabilities():
     active = family_repository.enabled()
-    has_database = family_repository.has_durable_database()
     return {
         "personal_location": True,
         "nearby_help": True,
         "family_sharing": active,
-        "family_storage": "durable_database" if has_database else ("local_development" if active else "not_configured"),
-        "family_message": None if active and has_database else
-            ("Family sharing works locally, but needs a durable cloud database before it can be enabled on the hosted site." if active else
-             "Family sharing is paused until the durable cloud database is connected. Existing dashboard features are unaffected."),
+        "family_storage": "app_sqlite" if active else "not_configured",
+        "family_message": ("Family groups use this app's own SQLite storage; no separate database provider is connected. On Render free, saved groups and locations can be erased when the service spins down, restarts, or redeploys." if active else
+             "Family sharing is paused. Existing dashboard features are unaffected."),
     }
 
 

@@ -37,7 +37,6 @@ class Settings(BaseSettings):
     ADMIN_API_KEY: str = ""
     # Family safety storage is opt-in; disable by default until configured.
     FAMILY_SHARING_ENABLED: bool = False
-    FAMILY_DATABASE_URL: str = ""
     
     # CORS settings
     ALLOWED_ORIGINS: List[str] = [

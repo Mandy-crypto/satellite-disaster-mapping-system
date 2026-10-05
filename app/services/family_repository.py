@@ -19,21 +19,13 @@ _initialized = False
 def _get_engine():
     global _engine
     if _engine is None:
-        database_url = str(settings.FAMILY_DATABASE_URL or os.getenv("FAMILY_DATABASE_URL", "")).strip()
-        if database_url:
-            if database_url.startswith("postgres://"):
-                database_url = database_url.replace("postgres://", "postgresql+psycopg://", 1)
-            elif database_url.startswith("postgresql://"):
-                database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
-            _engine = create_engine(database_url, pool_pre_ping=True, pool_recycle=300)
-        else:
-            data_dir = Path(settings.DATA_DIR).resolve()
-            data_dir.mkdir(parents=True, exist_ok=True)
-            db_path = (data_dir / "family_safety.sqlite3").as_posix()
-            _engine = create_engine(
-                f"sqlite:///{db_path}",
-                connect_args={"check_same_thread": False, "timeout": 15},
-            )
+        data_dir = Path(settings.DATA_DIR).resolve()
+        data_dir.mkdir(parents=True, exist_ok=True)
+        db_path = (data_dir / "family_safety.sqlite3").as_posix()
+        _engine = create_engine(
+            f"sqlite:///{db_path}",
+            connect_args={"check_same_thread": False, "timeout": 15},
+        )
     return _engine
 
 
@@ -42,10 +34,6 @@ def enabled() -> bool:
     if value is not None:
         return value.strip().lower() in {"1", "true", "yes", "on"}
     return bool(settings.FAMILY_SHARING_ENABLED)
-
-
-def has_durable_database() -> bool:
-    return bool(settings.FAMILY_DATABASE_URL or os.getenv("FAMILY_DATABASE_URL", "").strip())
 
 
 def initialize():

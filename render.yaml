@@ -16,7 +16,7 @@ services:
       - key: MQTT_ENABLED
         value: "false"
       - key: FAMILY_SHARING_ENABLED
-        value: "false"
+        value: "true"
       - key: REGION_NAME
         value: Jabalpur, Madhya Pradesh
       - key: REGION_LAT

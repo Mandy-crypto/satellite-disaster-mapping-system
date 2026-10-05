@@ -77,7 +77,7 @@
       </section>
     </div>
   </div>
-  <footer class="footer">Family location sharing is opt-in. The browser sends updates only while this page is open and location permission is granted. The last received point is retained for up to 30 days. Do not use this demo instead of official emergency services.</footer>
+  <footer class="footer">Family location sharing is opt-in. Updates are sent only while this page is open and location permission is granted. Group data is stored by this app and may be erased if its free hosting service restarts, spins down, or redeploys. Family alerts do not contact emergency services.</footer>
 </main>
 <script>
 const $ = id => document.getElementById(id);
@@ -215,7 +215,7 @@ async function checkFamilyCapabilities() {
   try {
     const caps=await api('/api/safety/capabilities');
     if(!caps.family_sharing) { setStatus('familyStatus',caps.family_message||'Family sharing is not available yet.','warning'); $('familyForms').classList.add('hidden'); return; }
-    if(caps.family_storage!=='durable_database') setStatus('familyStatus','Family sharing is available here for local development. The hosted app needs a persistent database before family locations can be safely enabled.','warning');
+    if(caps.family_storage==='app_sqlite') setStatus('familyStatus',caps.family_message||'Family data uses this app server’s local storage and may be erased after a restart or redeploy.','warning');
     else setStatus('familyStatus','Family sharing is enabled. Each member controls their own live sharing switch.','good');
     if(familySession) { $('familyForms').classList.add('hidden'); await refreshFamilyGroup(); }
   } catch(error) { setStatus('familyStatus',error.message,'warning'); }
