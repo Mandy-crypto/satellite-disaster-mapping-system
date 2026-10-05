@@ -3,20 +3,16 @@ services:
     name: disaster-mapping-jabalpur
     runtime: docker
     region: singapore
-    plan: starter
+    plan: free
     healthCheckPath: /api/health
     autoDeploy: true
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    disk:
-      name: disaster-mapping-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: DATA_DIR
-        value: /var/data
+        value: /tmp/disaster-mapping-data
       - key: OUTPUT_DIR
-        value: /var/data/output
+        value: /tmp/disaster-mapping-output
       - key: MQTT_ENABLED
         value: "false"
       - key: REGION_NAME
