@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     MQTT_PORT: int = 1883
     MQTT_TOPIC: str = "sensor/data"
     ADMIN_API_KEY: str = ""
+    # Family safety storage is opt-in; disable by default until configured.
+    FAMILY_SHARING_ENABLED: bool = False
+    FAMILY_DATABASE_URL: str = ""
     
     # CORS settings
     ALLOWED_ORIGINS: List[str] = [

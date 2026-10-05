@@ -19,7 +19,7 @@ _initialized = False
 def _get_engine():
     global _engine
     if _engine is None:
-        database_url = os.getenv("FAMILY_DATABASE_URL", "").strip()
+        database_url = str(settings.FAMILY_DATABASE_URL or os.getenv("FAMILY_DATABASE_URL", "")).strip()
         if database_url:
             if database_url.startswith("postgres://"):
                 database_url = database_url.replace("postgres://", "postgresql+psycopg://", 1)
@@ -38,7 +38,14 @@ def _get_engine():
 
 
 def enabled() -> bool:
-    return os.getenv("FAMILY_SHARING_ENABLED", "true").strip().lower() in {"1", "true", "yes", "on"}
+    value = os.getenv("FAMILY_SHARING_ENABLED")
+    if value is not None:
+        return value.strip().lower() in {"1", "true", "yes", "on"}
+    return bool(settings.FAMILY_SHARING_ENABLED)
+
+
+def has_durable_database() -> bool:
+    return bool(settings.FAMILY_DATABASE_URL or os.getenv("FAMILY_DATABASE_URL", "").strip())
 
 
 def initialize():

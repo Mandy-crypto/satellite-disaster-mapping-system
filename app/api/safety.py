@@ -85,7 +85,7 @@ def _distance_km(lat1, lon1, lat2, lon2):
 @router.get("/capabilities")
 async def capabilities():
     active = family_repository.enabled()
-    has_database = bool(__import__("os").getenv("FAMILY_DATABASE_URL"))
+    has_database = family_repository.has_durable_database()
     return {
         "personal_location": True,
         "nearby_help": True,
