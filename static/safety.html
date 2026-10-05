@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personal & Family Safety · Disaster Risk Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1230;--card:#20294c;--card2:#28335b;--edge:#ffffff20;--muted:#c0c9e1;--accent:#8c70ff;--red:#ff536e;--green:#36d890;--yellow:#ffd661}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#0a0e27,#1a1a4e,#0d1b3e);color:#fff;font:15px/1.5 Segoe UI,Tahoma,sans-serif}a{color:#b9d9ff}.wrap{max-width:1320px;margin:auto;padding:24px}.header{background:linear-gradient(110deg,#637be8,#7944a5);border-radius:20px;padding:22px 26px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:18px}.header h1{font-size:27px;margin:0}.header p{margin:4px 0 0;color:#eef1ff}.header a{color:#fff}.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:18px}.card{background:#ffffff0d;border:1px solid var(--edge);border-radius:18px;padding:19px;box-shadow:0 12px 38px #0002}.card h2{font-size:19px;margin:0 0 12px}.card h3{font-size:14px;margin:0 0 7px}.muted{color:var(--muted);font-size:13px}.notice{background:#252e50;border:1px solid #6876aa;border-radius:12px;padding:12px 14px;color:#e2e7ff;margin:12px 0}.warning{border-color:#a17a36;background:#39301e}.good{border-color:#258260;background:#173b36}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.field{display:grid;gap:4px;min-width:120px;flex:1}.field label,.small-label{font-size:12px;color:var(--muted)}input,select,textarea{background:#101936;color:#fff;border:1px solid #ffffff2c;border-radius:9px;padding:10px;font:inherit;width:100%}textarea{min-height:75px;resize:vertical}.btn{border:0;border-radius:10px;padding:10px 15px;background:#343e69;color:white;font-weight:700;cursor:pointer}.btn:hover{filter:brightness(1.15)}.btn.primary{background:var(--accent)}.btn.green{background:#22c879;color:#061c14}.btn.danger{background:#ee4b65}.btn.link{display:inline-flex;text-decoration:none}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}.stat{background:#ffffff0a;border:1px solid var(--edge);border-radius:12px;padding:12px}.stat b{display:block;font-size:21px}.stat span{font-size:11px;color:var(--muted);text-transform:uppercase}.feeds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.feed{background:#ffffff0a;border-radius:12px;padding:13px}.feed b{font-size:20px;display:block}.feed small{color:var(--muted);font-size:11px}.area-map{height:410px;border-radius:13px;margin-top:14px;border:1px solid var(--edge);overflow:hidden}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}.member,.event,.facility{background:#ffffff0a;border:1px solid var(--edge);border-radius:11px;padding:11px;margin:8px 0}.member-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.pill{border-radius:20px;padding:2px 9px;background:#454f76;font-size:11px}.pill.on{background:#176a51}.facility{display:flex;justify-content:space-between;gap:10px;align-items:center}.facility a{white-space:nowrap}.hidden{display:none!important}.line{height:1px;background:var(--edge);margin:16px 0}.footer{padding:22px;text-align:center;color:#98a4c8;font-size:12px}.call{font-weight:800;background:#d94b65;color:white!important;border-radius:9px;padding:10px 16px;text-decoration:none}.call:focus,.btn:focus,input:focus{outline:2px solid #9e8cff;outline-offset:2px}.busy{opacity:.6;pointer-events:none}.toast{position:sticky;top:8px;z-index:500;background:#18234a;border:1px solid #ffffff36;padding:10px 14px;border-radius:10px;display:none}.row-title{display:flex;justify-content:space-between;align-items:center;gap:8px}.risk-critical{color:#ff7086}.risk-high{color:#ff976f}.risk-medium{color:#ffe181}.risk-low{color:#53dc9d}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}.wrap{padding:13px}.feeds{grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}.area-map{height:340px}}
+    @media(max-width:520px){.feeds,.two-col{grid-template-columns:1fr}.header h1{font-size:22px}.card{padding:15px}.area-map{height:290px}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header class="header">
+    <div><h1>📍 Personal & Family Safety</h1><p>Check a place, share with trusted family, or find nearby help.</p></div>
+    <a href="/">← Back to disaster dashboard</a>
+  </header>
+  <div id="toast" class="toast" role="status"></div>
+  <div class="grid">
+    <section class="card">
+      <h2>Your area</h2>
+      <p class="muted">Choose a location to check available weather, earthquake, river, and assessed risk-zone information. Location is not saved unless you turn on family sharing below.</p>
+      <div class="buttons">
+        <button class="btn primary" id="locateBtn" onclick="useMyLocation()">Use my current location</button>
+        <button class="btn" onclick="loadArea()">Refresh this area</button>
+        <div class="field" style="max-width:145px"><label for="radius">Search radius</label><select id="radius" onchange="loadArea()"><option value="10">10 km</option><option value="25" selected>25 km</option><option value="50">50 km</option><option value="100">100 km</option></select></div>
+      </div>
+      <div id="locationLabel" class="notice">Location not selected. Use your device location or enter coordinates below.</div>
+      <div class="two-col">
+        <div class="field"><label for="manualLat">Latitude</label><input id="manualLat" type="number" min="-90" max="90" step="any" placeholder="e.g. 23.181"></div>
+        <div class="field"><label for="manualLon">Longitude</label><input id="manualLon" type="number" min="-180" max="180" step="any" placeholder="e.g. 79.951"></div>
+      </div>
+      <div class="buttons"><button class="btn" onclick="useManualLocation()">Check these coordinates</button></div>
+      <div class="stat-grid">
+        <div class="stat"><b id="riskStatus">—</b><span>Assessed risk zones</span></div>
+        <div class="stat"><b id="activeSensors">—</b><span>Sensor readings</span></div>
+        <div class="stat"><b id="earthquakeCount">—</b><span>Nearby earthquakes</span></div>
+        <div class="stat"><b id="gaugeCount">—</b><span>River gauge records</span></div>
+      </div>
+      <div class="feeds">
+        <div class="feed"><h3>Temperature</h3><b id="temperature">—</b><small id="weatherTime">Waiting for a location</small></div>
+        <div class="feed"><h3>Rain in last hour</h3><b id="rainfall">—</b><small>Weather model, not a local rain gauge</small></div>
+        <div class="feed"><h3>Risk zone counts</h3><b id="zoneCounts">—</b><small>Only from assessed project zones / readings</small></div>
+      </div>
+      <div id="areaNotice" class="notice">No location has been checked yet.</div>
+      <div id="map" class="area-map" aria-label="Map of the selected location and available risk records"></div>
+      <p class="muted" style="margin-top:8px">Public feeds provide context and can be delayed or incomplete. An empty map does not mean a place is safe.</p>
+    </section>
+
+    <div>
+      <section class="card">
+        <div class="row-title"><h2>Nearby emergency help</h2><a class="call" href="tel:112">Call 112</a></div>
+        <p class="muted">Find mapped police stations, shelters, fire stations, and medical facilities near the selected location.</p>
+        <div class="buttons"><button class="btn primary" onclick="loadHelp()">Find nearby help</button></div>
+        <div id="helpNotice" class="notice warning">Community map listings may be incomplete. This tool does not send a request or alert to the listed facilities. In India, the official emergency response number is 112.</div>
+        <div id="helpList" class="muted">Choose a location to search nearby listings.</div>
+      </section>
+
+      <section class="card" style="margin-top:18px">
+        <h2>Family safety group</h2>
+        <p class="muted">Create a private group or join with an invite code. Group members can see the last location a member shared and any in-app help/risk-zone alerts.</p>
+        <div id="familyStatus" class="notice">Checking family sharing availability…</div>
+        <div id="familyForms">
+          <div class="field"><label for="groupName">New group name</label><input id="groupName" maxlength="60" placeholder="e.g. Rao family"></div>
+          <div class="field" style="margin-top:8px"><label for="memberName">Your display name (nickname is fine)</label><input id="memberName" maxlength="40" placeholder="e.g. Mani"></div>
+          <div class="buttons"><button class="btn primary" onclick="createFamilyGroup()">Create group</button></div>
+          <div class="line"></div>
+          <div class="field"><label for="inviteCode">Invite code</label><input id="inviteCode" maxlength="80" autocomplete="off" placeholder="Paste a family invite code"></div>
+          <div class="field" style="margin-top:8px"><label for="joinName">Your display name</label><input id="joinName" maxlength="40" placeholder="e.g. Mani"></div>
+          <div class="buttons"><button class="btn" onclick="joinFamilyGroup()">Join group</button></div>
+        </div>
+        <div id="familyGroup" class="hidden"></div>
+      </section>
+    </div>
+  </div>
+  <footer class="footer">Family location sharing is opt-in. The browser sends updates only while this page is open and location permission is granted. The last received point is retained for up to 30 days. Do not use this demo instead of official emergency services.</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let currentPoint = null;
+let map = null, areaCircle = null, currentMarker = null, featureMarkers = [];
+let familySession = null, familyPoll = null, geolocationWatch = null, sharingReady = false, lastSent = null, lastSentAt = 0;
+const sessionKey = 'disasterMappingFamilySession';
+try { familySession = JSON.parse(localStorage.getItem(sessionKey) || 'null'); } catch { localStorage.removeItem(sessionKey); }
+
+function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(message) { const el=$('toast'); el.textContent=message; el.style.display='block'; clearTimeout(toast.timer); toast.timer=setTimeout(()=>el.style.display='none',5000); }
+function setStatus(id,message,kind='') { const el=$(id); el.className='notice '+kind; el.textContent=message; }
+async function api(path, options={}) {
+  const headers={'Content-Type':'application/json',...(options.headers||{})};
+  if (options.token) headers.Authorization=`Bearer ${options.token}`;
+  const response=await fetch(path,{...options,headers,body:options.body&&typeof options.body!=='string'?JSON.stringify(options.body):options.body});
+  const data=await response.json().catch(()=>({detail:'The server returned an unreadable response.'}));
+  if(!response.ok) throw new Error(data.detail||`Request failed (${response.status})`);
+  return data;
+}
+
+function setupMap() {
+  if(!window.L) { $('map').textContent='Map library could not load.'; return; }
+  map=L.map('map').setView([23.181,79.951],7);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Map data: Esri and OpenStreetMap contributors'}).addTo(map);
+}
+setupMap();
+
+function setPoint(lat,lon,label) {
+  currentPoint={lat:Number(lat),lon:Number(lon),label};
+  $('manualLat').value=currentPoint.lat.toFixed(6); $('manualLon').value=currentPoint.lon.toFixed(6);
+  $('locationLabel').textContent=`${label} · ${currentPoint.lat.toFixed(5)}, ${currentPoint.lon.toFixed(5)}`;
+  if(map) {
+    if(areaCircle) map.removeLayer(areaCircle); if(currentMarker) map.removeLayer(currentMarker);
+    areaCircle=L.circle([currentPoint.lat,currentPoint.lon],{radius:Number($('radius').value)*1000,color:'#a18cff',fillColor:'#735cff',fillOpacity:.08}).addTo(map);
+    currentMarker=L.marker([currentPoint.lat,currentPoint.lon]).addTo(map).bindPopup('Selected location');
+    map.fitBounds(areaCircle.getBounds(),{padding:[16,16]});
+  }
+}
+
+async function useMyLocation() {
+  if(!navigator.geolocation) return toast('This browser does not provide location access. Enter coordinates instead.');
+  $('locateBtn').disabled=true; $('locateBtn').textContent='Getting location…';
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    setPoint(pos.coords.latitude,pos.coords.longitude,'Your current location');
+    $('locateBtn').disabled=false; $('locateBtn').textContent='Use my current location';
+    await loadArea();
+  },err=>{
+    $('locateBtn').disabled=false; $('locateBtn').textContent='Use my current location';
+    toast(err.code===1?'Location permission was declined. Enter coordinates to continue.':'Could not read your location. Enter coordinates to continue.');
+  },{enableHighAccuracy:true,maximumAge:30000,timeout:15000});
+}
+function useManualLocation() {
+  const lat=Number($('manualLat').value),lon=Number($('manualLon').value);
+  if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat < -90||lat>90||lon < -180||lon>180) return toast('Enter a valid latitude and longitude.');
+  setPoint(lat,lon,'Chosen location'); loadArea();
+}
+
+async function loadArea() {
+  if(!currentPoint) return toast('Choose a location first.');
+  const radius=Number($('radius').value), {lat,lon}=currentPoint;
+  $('areaNotice').textContent='Loading regional public feeds and assessed project data…';
+  if(areaCircle) areaCircle.setRadius(radius*1000);
+  const q=`lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&radius_km=${radius}`;
+  const requests=await Promise.allSettled([
+    api(`/api/dashboard/statistics?${q}`),
+    api(`/api/live/weather?lat=${lat}&lon=${lon}`),
+    api(`/api/live/earthquakes/near?${q}&min_magnitude=2.5`),
+    api(`/api/live/river-levels?${q}`),
+    api(`/api/dashboard/risk-map?${q}`),
+    api(`/api/live/sensors?${q}`)
+  ]);
+  const [stats,weather,quakes,rivers,zones,sensors]=requests.map(r=>r.status==='fulfilled'?r.value:null);
+  if(stats?.statistics) {
+    const s=stats.statistics;
+    $('riskStatus').textContent=s.assessment_status==='available'?'Available':'No assessment';
+    $('activeSensors').textContent=s.active_sensors??0;
+    $('zoneCounts').textContent=`${s.critical_zones??'—'} / ${s.high_zones??'—'} / ${s.medium_zones??'—'} / ${s.low_zones??'—'}`;
+    $('areaNotice').textContent=s.assessment_status==='available'
+      ? `Assessed records within ${radius} km. Zone order: critical / high / medium / low. These counts only describe imported or processed project data; they are not a complete disaster probability.`
+      : `No satellite or sensor risk assessment is available within ${radius} km of this point yet. Weather and public event data below are context, not a guarantee of safety.`;
+  } else $('areaNotice').textContent='The project risk assessment is temporarily unavailable.';
+  if(weather?.data) { $('temperature').textContent=`${weather.data.temperature_c??'—'} °C`; $('rainfall').textContent=`${weather.data.rainfall_mm??'—'} mm`; $('weatherTime').textContent=`Open-Meteo · ${weather.data.observed_at||'provider time unavailable'}`; }
+  else { $('temperature').textContent='Unavailable'; $('rainfall').textContent='Unavailable'; $('weatherTime').textContent='Weather provider unavailable'; }
+  $('earthquakeCount').textContent=quakes?.count??'—';
+  $('gaugeCount').textContent=rivers?.count??'—';
+  if(map) {
+    featureMarkers.forEach(m=>map.removeLayer(m)); featureMarkers=[];
+    (zones?.zones||[]).forEach(zone=>{
+      const pos=zone.location||{}; if(!Number.isFinite(Number(pos.lat))||!Number.isFinite(Number(pos.lon))) return;
+      const level=String(zone.risk_level||'LOW').toUpperCase(), colors={CRITICAL:'#ff536e',HIGH:'#ff8b55',MEDIUM:'#ffd661',LOW:'#36d890'};
+      const marker=L.circleMarker([Number(pos.lat),Number(pos.lon)],{radius:9,color:'#fff',weight:1,fillOpacity:.9,fillColor:colors[level]||'#aaa'}).addTo(map);
+      marker.bindPopup(`<b>${esc(level)} risk</b><br>${esc(zone.explanation||zone.zone_id||'Assessed project zone')}`); featureMarkers.push(marker);
+    });
+    (rivers?.stations||[]).forEach(station=>{
+      if(!Number.isFinite(Number(station.latitude))||!Number.isFinite(Number(station.longitude))) return;
+      const marker=L.circleMarker([Number(station.latitude),Number(station.longitude)],{radius:7,color:'#fff',weight:1,fillColor:station.stale?'#8e99ae':'#21d1e7',fillOpacity:.9}).addTo(map);
+      marker.bindPopup(`<b>${esc(station.station_name)}</b><br>${esc(station.river||'River gauge')} · ${esc(station.timestamp||'time unavailable')}<br>${station.stale?'Record older than 24 hours.':''}`); featureMarkers.push(marker);
+    });
+    if(sensors?.readings) sensors.readings.forEach(reading=>{
+      const lat=Number(reading.latitude),lon=Number(reading.longitude); if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
+      const marker=L.circleMarker([lat,lon],{radius:8,color:'#fff',weight:1,fillColor:'#9b6bff',fillOpacity:.9}).addTo(map);
+      marker.bindPopup(`<b>${esc(reading.sensor_id)}</b><br>${esc(reading.risk_level||'Sensor reading')}<br>${esc(reading.timestamp||'time unavailable')}`);featureMarkers.push(marker);
+    });
+  }
+  if(![stats,weather,quakes,rivers,zones,sensors].some(Boolean)) toast('Area feeds are unavailable right now.');
+}
+
+async function loadHelp() {
+  if(!currentPoint) return toast('Choose a location before searching for nearby help.');
+  $('helpList').textContent='Searching public map listings…';
+  try {
+    const result=await api(`/api/safety/nearby-help?lat=${currentPoint.lat}&lon=${currentPoint.lon}&radius_km=${Math.min(Number($('radius').value),25)}`);
+    $('helpNotice').textContent=result.notice;
+    if(!result.facilities.length) { $('helpList').textContent='No mapped facilities were returned in this radius. You can still call 112 in India.'; return; }
+    $('helpList').innerHTML=result.facilities.map(f=>{
+      const mapUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${f.latitude},${f.longitude}`)}`;
+      const phone=f.phone?`<a href="tel:${encodeURIComponent(f.phone)}">Call listed number</a>`:'';
+      return `<div class="facility"><div><b>${esc(f.name)}</b><div class="muted">${esc(f.category.replaceAll('_',' '))} · ${f.distance_km} km · ${esc(f.source)}</div></div><div>${phone} <a href="${mapUrl}" target="_blank" rel="noopener">Map</a></div></div>`;
+    }).join('');
+  } catch(error) { $('helpList').textContent=error.message; }
+}
+
+function storeFamilySession(data) {
+  familySession={group_id:data.group_id,group_name:data.group_name,member_id:data.member_id,member_token:data.member_token,invite_code:data.invite_code||null};
+  localStorage.setItem(sessionKey,JSON.stringify(familySession));
+}
+async function copyInviteCode() {
+  const code=familySession?.invite_code;
+  if(!code) return toast('This device does not have the group invite code. Only the group creator received it.');
+  try { await navigator.clipboard.writeText(code); toast('Invite code copied. Share it only with trusted family.'); }
+  catch { prompt('Copy this invite code and share it only with trusted family:',code); }
+}
+async function checkFamilyCapabilities() {
+  try {
+    const caps=await api('/api/safety/capabilities');
+    if(!caps.family_sharing) { setStatus('familyStatus',caps.family_message||'Family sharing is not available yet.','warning'); $('familyForms').classList.add('hidden'); return; }
+    if(caps.family_storage!=='durable_database') setStatus('familyStatus','Family sharing is available here for local development. The hosted app needs a persistent database before family locations can be safely enabled.','warning');
+    else setStatus('familyStatus','Family sharing is enabled. Each member controls their own live sharing switch.','good');
+    if(familySession) { $('familyForms').classList.add('hidden'); await refreshFamilyGroup(); }
+  } catch(error) { setStatus('familyStatus',error.message,'warning'); }
+}
+async function createFamilyGroup() {
+  const groupName=$('groupName').value.trim(),memberName=$('memberName').value.trim();
+  if(!groupName||!memberName) return toast('Enter a group name and your display name.');
+  try {
+    const data=await api('/api/safety/groups',{method:'POST',body:{group_name:groupName,member_name:memberName}});
+    storeFamilySession(data); $('familyForms').classList.add('hidden');
+    setStatus('familyStatus',`Group created. Invite code: ${data.invite_code} · Keep this code private.`, 'good');
+    $('familyStatus').title='Copy and share this code only with trusted family.';
+    await refreshFamilyGroup();
+  } catch(error) { toast(error.message); }
+}
+async function joinFamilyGroup() {
+  const inviteCode=$('inviteCode').value.trim(),memberName=$('joinName').value.trim();
+  if(!inviteCode||!memberName) return toast('Enter the invite code and your display name.');
+  try {
+    const data=await api('/api/safety/groups/join',{method:'POST',body:{invite_code:inviteCode,member_name:memberName}});
+    storeFamilySession(data); $('familyForms').classList.add('hidden'); await refreshFamilyGroup(); toast(`Joined ${data.group_name}.`);
+  } catch(error) { toast(error.message); }
+}
+function timeAgo(value) {
+  if(!value) return 'No location shared yet';
+  const seconds=Math.max(0,Math.round((Date.now()-new Date(value).getTime())/1000));
+  if(seconds<60) return `updated ${seconds}s ago`;
+  if(seconds<3600) return `updated ${Math.floor(seconds/60)}m ago`;
+  if(seconds<86400) return `updated ${Math.floor(seconds/3600)}h ago`;
+  return `updated ${Math.floor(seconds/86400)}d ago`;
+}
+async function refreshFamilyGroup() {
+  if(!familySession)return;
+  try {
+    const data=await api(`/api/safety/groups/${encodeURIComponent(familySession.group_id)}`,{token:familySession.member_token});
+    familySession.group_name=data.group.group_name;
+    const own=data.members.find(m=>m.member_id===familySession.member_id);
+    const memberCards=data.members.map(member=>{
+      const hasPoint=member.latitude!==null&&member.longitude!==null;
+      const maps=hasPoint?`<a href="https://www.google.com/maps/search/?api=1&query=${member.latitude},${member.longitude}" target="_blank" rel="noopener">Open last location</a>`:'No saved location';
+      const fresh=member.location_updated_at&&(Date.now()-new Date(member.location_updated_at).getTime()<120000);
+      const shareText=fresh&&member.sharing_enabled?'Sharing · current':'Last known · '+timeAgo(member.location_updated_at);
+      return `<div class="member"><div class="member-head"><b>${esc(member.member_name)} ${member.member_id===familySession.member_id?'(you)':''}</b><span class="pill ${fresh&&member.sharing_enabled?'on':''}">${esc(shareText)}</span></div><div class="muted">${maps}${member.accuracy_m?` · accuracy ±${Math.round(member.accuracy_m)} m`:''}</div><small class="muted">${member.location_updated_at?`Last location time: ${esc(new Date(member.location_updated_at).toLocaleString())}`:'No location has been shared.'}</small></div>`;
+    }).join('');
+    const alertCards=data.alerts.length?data.alerts.map(alert=>`<div class="event"><b class="risk-${esc(alert.risk_level.toLowerCase())}">${esc(alert.alert_type==='HELP'?'HELP REQUEST':alert.risk_level+' RISK ZONE')}</b><div>${esc(alert.message)}</div><small class="muted">${esc(new Date(alert.created_at).toLocaleString())} · in-app only</small></div>`).join(''):'<div class="muted">No family alerts yet.</div>';
+    const invitePanel=familySession.invite_code?`<div class="notice"><b>Private invite code</b><br><code>${esc(familySession.invite_code)}</code><div class="buttons"><button class="btn" onclick="copyInviteCode()">Copy invite code</button></div><small>Anyone with this code can request to join. Share it only with trusted family.</small></div>`:'';
+    $('familyGroup').innerHTML=`<div class="notice good"><b>${esc(data.group.group_name)}</b><br>Updates appear here while this group is open. Location shown is the last point received.</div>${invitePanel}
+      <div class="field"><label><input id="sharingToggle" type="checkbox" style="width:auto;margin-right:6px" ${own?.sharing_enabled&&Date.now()-new Date(own.location_updated_at||0).getTime()<120000?'checked':''} onchange="toggleSharing(this.checked)">Share my location while this page is open</label></div>
+      <div class="muted">Location is sent only while this switch is on, permission is granted, and this page remains open. Closing the page stops updates; others will see the last point and its time. Last point and in-app alerts are deleted after 30 days.</div>
+      <div class="buttons"><button class="btn danger" onclick="sendHelpAlert()">Send in-app help alert</button><a class="call" href="tel:112">Call 112</a><button class="btn" onclick="leaveFamilyGroup()">Leave group</button><button class="btn" onclick="refreshFamilyGroup()">Refresh group</button></div>
+      <div class="line"></div><h3>Members and last shared locations</h3>${memberCards}<div class="line"></div><h3>Family alerts</h3>${alertCards}`;
+    $('familyGroup').classList.remove('hidden');
+    setStatus('familyStatus',`Connected to ${data.group.group_name}. Share the invite code privately; anyone who has it can request to join.`, 'good');
+    if(familyPoll)clearInterval(familyPoll); familyPoll=setInterval(refreshFamilyGroup,15000);
+  } catch(error) {
+    toast(error.message);
+    if(/not found|access token/i.test(error.message)) { localStorage.removeItem(sessionKey); familySession=null; $('familyForms').classList.remove('hidden'); $('familyGroup').classList.add('hidden'); }
+  }
+}
+async function toggleSharing(enabled) {
+  if(!familySession)return;
+  if(!enabled) {
+    if(geolocationWatch!==null)navigator.geolocation.clearWatch(geolocationWatch);
+    geolocationWatch=null; sharingReady=false; lastSent=null;
+    try { await api(`/api/safety/groups/${familySession.group_id}/members/${familySession.member_id}/sharing`,{method:'PATCH',body:{enabled:false},token:familySession.member_token}); toast('Location sharing stopped.'); await refreshFamilyGroup(); }
+    catch(error){toast(error.message);}
+    return;
+  }
+  if(!navigator.geolocation) { $('sharingToggle').checked=false; return toast('This browser does not provide location access.'); }
+  if(geolocationWatch!==null)navigator.geolocation.clearWatch(geolocationWatch);
+  sharingReady=false;
+  geolocationWatch=navigator.geolocation.watchPosition(async pos=>{
+    const point={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy_m:pos.coords.accuracy};
+    const now=Date.now(),moved=lastSent?_distance(point.lat,point.lon,lastSent.lat,lastSent.lon):Infinity;
+    if(lastSent&&moved<0.1&&now-lastSentAt<60000)return;
+    try {
+      if(!sharingReady) {
+        await api(`/api/safety/groups/${familySession.group_id}/members/${familySession.member_id}/sharing`,{method:'PATCH',body:{enabled:true},token:familySession.member_token});
+        sharingReady=true;
+      }
+      await api(`/api/safety/groups/${familySession.group_id}/members/${familySession.member_id}/location`,{method:'PUT',body:{latitude:point.lat,longitude:point.lon,accuracy_m:point.accuracy_m},token:familySession.member_token});
+      lastSent=point;lastSentAt=now;setStatus('familyStatus','Location is being shared with this group while this page stays open.','good');
+      refreshFamilyGroup();
+    } catch(error) { toast(error.message); }
+  },err=>{
+    $('sharingToggle').checked=false;
+    if(geolocationWatch!==null)navigator.geolocation.clearWatch(geolocationWatch);
+    geolocationWatch=null;sharingReady=false;
+    toast(err.code===1?'Location permission was declined. Sharing stayed off.':'Could not read location. Sharing stayed off.');
+  },{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
+  toast('Waiting for location permission and the first position…');
+}
+function _distance(lat1,lon1,lat2,lon2) { const r=x=>x*Math.PI/180,dlat=r(lat2-lat1),dlon=r(lon2-lon1),a=Math.sin(dlat/2)**2+Math.cos(r(lat1))*Math.cos(r(lat2))*Math.sin(dlon/2)**2;return 6371*2*Math.asin(Math.sqrt(Math.min(1,a))); }
+async function sendHelpAlert() {
+  if(!familySession)return;
+  const message=prompt(`Add a short message for your family. The alert only appears in this family group; it does not contact emergency services.${currentPoint?' The currently selected location will be attached.':''}`,'I need help.');
+  if(message===null)return;
+  try {
+    await api(`/api/safety/groups/${familySession.group_id}/alerts`,{method:'POST',body:{message:message||'I need help.',latitude:currentPoint?.lat??null,longitude:currentPoint?.lon??null},token:familySession.member_token});
+    toast('In-app alert sent to your family group. It was not sent to emergency services.'); await refreshFamilyGroup();
+  } catch(error){toast(error.message);}
+}
+async function leaveFamilyGroup() {
+  if(!familySession||!confirm('Leave this group and remove your saved location points from it?'))return;
+  try {
+    if(geolocationWatch!==null)navigator.geolocation.clearWatch(geolocationWatch);
+    await api(`/api/safety/groups/${familySession.group_id}/members/${familySession.member_id}`,{method:'DELETE',token:familySession.member_token});
+    localStorage.removeItem(sessionKey);familySession=null;if(familyPoll)clearInterval(familyPoll);
+    $('familyGroup').classList.add('hidden');$('familyForms').classList.remove('hidden');setStatus('familyStatus','You left the family group.');toast('Group access removed.');
+  } catch(error){toast(error.message);}
+}
+window.addEventListener('pagehide',()=>{
+  if(geolocationWatch!==null)navigator.geolocation.clearWatch(geolocationWatch);
+  if(familySession&&sharingReady) fetch(`/api/safety/groups/${familySession.group_id}/members/${familySession.member_id}/sharing`,{
+    method:'PATCH',headers:{'Content-Type':'application/json',Authorization:`Bearer ${familySession.member_token}`},body:JSON.stringify({enabled:false}),keepalive:true
+  }).catch(()=>{});
+});
+checkFamilyCapabilities();
+</script>
+</body>
+</html>

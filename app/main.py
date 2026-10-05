@@ -58,7 +58,8 @@ from app.api import (
     process_router,
     dashboard_router,
     live_router,
-    websocket_router
+    websocket_router,
+    safety_router
 )
 
 app.include_router(satellite_router)
@@ -67,6 +68,7 @@ app.include_router(process_router)
 app.include_router(dashboard_router)
 app.include_router(live_router)
 app.include_router(websocket_router)
+app.include_router(safety_router)
 
 # =============================================
 # BASIC ROUTES
