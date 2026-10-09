@@ -344,6 +344,207 @@
             font-size: 12px;
             padding: 15px;
         }
+
+        /* ===== VISUAL SYSTEM: depth, atmosphere, and responsive polish ===== */
+        :root {
+            --ink: #f3f7ff;
+            --muted-ink: #a7b5d3;
+            --glass: rgba(18, 30, 61, .78);
+            --glass-edge: rgba(153, 188, 255, .17);
+            --aqua: #5eead4;
+            --violet: #9b8cff;
+        }
+        body {
+            color: var(--ink);
+            background:
+                radial-gradient(ellipse at 78% 4%, rgba(72, 95, 180, .27), transparent 34%),
+                radial-gradient(ellipse at 10% 22%, rgba(0, 199, 208, .12), transparent 31%),
+                linear-gradient(145deg, #07101f 0%, #101932 48%, #101b35 100%);
+            background-attachment: fixed;
+            padding: 24px;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            opacity: .22;
+            background-image: linear-gradient(rgba(165, 190, 255, .055) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(165, 190, 255, .055) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, black, transparent 82%);
+        }
+        .dashboard { max-width: 1580px; }
+        .header {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            min-height: 168px;
+            padding: 28px 32px;
+            border: 1px solid rgba(194, 215, 255, .2);
+            border-radius: 26px;
+            background: linear-gradient(112deg, rgba(30, 70, 111, .96), rgba(37, 55, 111, .92) 48%, rgba(91, 54, 139, .95));
+            box-shadow: 0 28px 70px rgba(0, 0, 0, .27), inset 0 1px rgba(255, 255, 255, .16);
+        }
+        .header::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(ellipse at 68% 10%, rgba(94, 234, 212, .2), transparent 43%),
+                        linear-gradient(90deg, transparent 45%, rgba(255, 255, 255, .035));
+        }
+        .header-left { z-index: 1; flex: 1 1 420px; }
+        .header-left h1 { font-size: clamp(27px, 3vw, 39px); letter-spacing: -.045em; text-shadow: 0 5px 25px rgba(3, 11, 32, .4); }
+        .header-left h1 i { color: var(--aqua); filter: drop-shadow(0 0 13px rgba(94, 234, 212, .66)); }
+        .header-left p { margin-top: 9px; color: #d2e2ff; font-size: 13px; letter-spacing: .025em; }
+        .header-right { z-index: 1; justify-content: flex-end; gap: 8px; }
+        .header-badge {
+            padding: 9px 13px;
+            border: 1px solid rgba(255, 255, 255, .16);
+            background: rgba(8, 18, 42, .28);
+            box-shadow: inset 0 1px rgba(255,255,255,.08);
+            backdrop-filter: blur(16px);
+        }
+        .hero-globe {
+            position: relative;
+            flex: 0 0 126px;
+            width: 126px;
+            height: 126px;
+            perspective: 600px;
+            filter: drop-shadow(0 14px 28px rgba(3, 12, 35, .4));
+            animation: globe-float 6s ease-in-out infinite;
+        }
+        .hero-globe::before, .hero-globe::after, .hero-globe .globe-orbit, .hero-globe .globe-ping { content: ""; position: absolute; display: block; }
+        .hero-globe::before {
+            inset: 13px;
+            border-radius: 50%;
+            border: 1px solid rgba(171, 245, 240, .8);
+            background:
+                radial-gradient(ellipse at 38% 39%, rgba(122, 247, 214, .8) 0 8%, transparent 9%),
+                radial-gradient(ellipse at 58% 57%, rgba(79, 202, 190, .8) 0 13%, transparent 14%),
+                radial-gradient(ellipse at 64% 29%, rgba(148, 235, 211, .68) 0 5%, transparent 6%),
+                radial-gradient(circle at 33% 27%, #c1fff4 0 2%, transparent 3%),
+                radial-gradient(circle at 34% 30%, #438ca6 0%, #17436c 45%, #101d45 73%, #071225 100%);
+            box-shadow: inset -14px -5px 24px rgba(1, 9, 26, .7), inset 4px 2px 15px rgba(150, 239, 255, .45), 0 0 34px rgba(82, 235, 215, .24);
+        }
+        .hero-globe::after {
+            inset: 14px 30px;
+            border: 1px solid rgba(184, 234, 255, .38);
+            border-radius: 50%;
+            transform: rotateY(67deg);
+        }
+        .hero-globe .globe-orbit {
+            inset: 28px -3px;
+            border: 1px solid rgba(158, 184, 255, .63);
+            border-radius: 50%;
+            transform: rotate(-27deg) rotateX(65deg);
+            box-shadow: 0 0 14px rgba(130, 155, 255, .2);
+            animation: orbit-drift 18s linear infinite;
+        }
+        .hero-globe .globe-ping {
+            width: 9px; height: 9px; top: 32px; right: 28px; border-radius: 50%;
+            background: #ffe78a; box-shadow: 0 0 0 5px rgba(255, 231, 138, .14), 0 0 18px #ffe78a;
+        }
+        .hero-globe:hover::before { filter: brightness(1.18); box-shadow: inset -14px -5px 24px rgba(1, 9, 26, .7), inset 4px 2px 15px rgba(150, 239, 255, .55), 0 0 46px rgba(82, 235, 215, .42); }
+        @keyframes globe-float { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
+        @keyframes orbit-drift { to { transform: rotate(333deg) rotateX(65deg); } }
+        .stats-grid { gap: 13px; margin: 18px 0 20px; perspective: 1000px; }
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            min-height: 112px;
+            padding: 16px 12px;
+            border: 1px solid var(--glass-edge);
+            border-radius: 17px;
+            background: linear-gradient(145deg, rgba(30, 46, 83, .88), rgba(17, 28, 56, .78));
+            box-shadow: 0 10px 26px rgba(2, 9, 25, .18), inset 0 1px rgba(255,255,255,.07);
+            transform-style: preserve-3d;
+            transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease;
+            animation: card-enter .65s both;
+        }
+        .stat-card::after {
+            content: ""; position: absolute; width: 110px; height: 110px; right: -60px; top: -70px;
+            border-radius: 50%; background: radial-gradient(circle, rgba(124, 199, 255, .16), transparent 70%); pointer-events:none;
+        }
+        .stat-card:hover { transform: translateY(-5px) rotateX(3deg); border-color: rgba(117, 230, 223, .42); box-shadow: 0 19px 38px rgba(2, 9, 25, .3), 0 0 22px rgba(82, 212, 210, .08); }
+        .stat-value { font-variant-numeric: tabular-nums; }
+        .stat-icon { filter: drop-shadow(0 3px 9px currentColor); }
+        @keyframes card-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .region-scope { margin: 4px 0 12px; color: #9fb1d3; font-weight: 600; letter-spacing: .025em; }
+        .region-feed {
+            position: relative; overflow: hidden;
+            border: 1px solid var(--glass-edge); border-radius: 17px;
+            background: linear-gradient(145deg, rgba(25, 41, 75, .85), rgba(14, 25, 51, .78));
+            box-shadow: inset 0 1px rgba(255,255,255,.06), 0 12px 30px rgba(2,9,25,.14);
+            transition: transform .25s ease, border-color .25s ease;
+        }
+        .region-feed:hover { transform: translateY(-3px); border-color: rgba(94, 234, 212, .34); }
+        .region-feed h3 { color: #9fb1d3; letter-spacing: .12em; }
+        .region-feed strong { font-size: 29px; letter-spacing: -.03em; }
+        .region-feed small { color: var(--muted-ink); }
+        .btn-group { gap: 9px; margin: 20px 0; }
+        .btn {
+            position: relative; overflow: hidden; border: 1px solid rgba(177, 198, 239, .2);
+            background: rgba(21, 35, 68, .78); border-radius: 12px; padding: 11px 15px;
+            box-shadow: 0 5px 14px rgba(2, 8, 24, .18), inset 0 1px rgba(255,255,255,.06);
+            transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+        }
+        .btn:hover { transform: translateY(-3px); filter: brightness(1.13); box-shadow: 0 10px 23px rgba(3, 9, 29, .32); }
+        .btn:active { transform: translateY(-1px) scale(.98); }
+        .btn:focus-visible { outline: 3px solid var(--aqua); outline-offset: 3px; }
+        .btn-primary { background: linear-gradient(135deg, #7e69ff, #a16dff); border-color: #b39cff; }
+        .btn-success { background: linear-gradient(135deg, #34d399, #55e4b4); border-color: #8df4d1; }
+        .btn-warning { background: linear-gradient(135deg, #ff7048, #ff9552); border-color: #ffc095; }
+        .btn-danger { background: linear-gradient(135deg, #ef476f, #fa6485); border-color: #ff9aad; }
+        .main-content { gap: 18px; grid-template-columns: minmax(0, 2.1fr) minmax(300px, .9fr); }
+        .map-container, .alerts-container, .sensor-container {
+            position: relative; overflow: hidden; border: 1px solid var(--glass-edge); border-radius: 21px;
+            background: linear-gradient(145deg, rgba(28, 43, 78, .88), rgba(15, 26, 53, .84));
+            box-shadow: 0 20px 48px rgba(2, 8, 23, .22), inset 0 1px rgba(255,255,255,.07);
+            backdrop-filter: blur(18px);
+        }
+        .map-container { padding: 21px; }
+        .map-container h2, .alerts-container h2, .sensor-container h2 { letter-spacing: -.015em; }
+        .map-container h2 { font-size: 17px; }
+        #map { height: 490px; border: 1px solid rgba(183, 208, 255, .25); border-radius: 15px; box-shadow: 0 12px 28px rgba(0,0,0,.25); }
+        .legend { border: 1px solid rgba(174, 198, 239, .1); background: rgba(6, 15, 34, .35); }
+        .legend-item { color: #bfcae1; }
+        .alerts-container, .sensor-container { padding: 20px; }
+        .alert-count { box-shadow: 0 0 14px rgba(255, 71, 87, .28); }
+        .alert-item, .sensor-item { border: 1px solid rgba(182, 203, 245, .1); }
+        .result-box {
+            border: 1px solid var(--glass-edge); border-radius: 16px;
+            background: rgba(8, 17, 38, .72); color: #c9d7f1;
+            box-shadow: inset 0 1px rgba(255,255,255,.04);
+        }
+        .footer { color: #8191b1; letter-spacing: .035em; }
+        @media (max-width: 1050px) {
+            .hero-globe { flex-basis: 96px; width: 96px; height: 96px; }
+            .hero-globe::before { inset: 10px; }
+            .hero-globe::after { inset: 11px 25px; }
+            .hero-globe .globe-orbit { inset: 22px -2px; }
+            .hero-globe .globe-ping { top: 24px; right: 22px; width: 7px; height: 7px; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .header { min-height: unset; padding: 22px; border-radius: 20px; }
+            .header-left { flex: 0 1 auto; }
+            .header-right { justify-content: center; }
+            .hero-globe { order: 3; flex-basis: 78px; width: 78px; height: 78px; margin: 0 auto; }
+            .hero-globe::before { inset: 9px; }
+            .hero-globe::after { inset: 10px 21px; }
+            .hero-globe .globe-orbit { inset: 18px -2px; }
+            .hero-globe .globe-ping { top: 19px; right: 18px; width: 6px; height: 6px; }
+            .header-left h1 { justify-content: center; }
+            .header-left p { line-height: 1.6; }
+            .main-content { grid-template-columns: 1fr; }
+            #map { height: 360px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+        }
         
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1200px) {
@@ -371,6 +572,7 @@
             <h1><i class="fas fa-satellite-dish"></i> Disaster Risk Dashboard</h1>
             <p>Satellite-Assisted Mapping System · Public feeds, imported imagery, and sensor readings · SIH 2026</p>
         </div>
+        <div class="hero-globe" aria-hidden="true"><span class="globe-orbit"></span><span class="globe-ping"></span></div>
         <div class="header-right">
             <div class="header-badge"><span class="live-dot"></span> REGION VIEW</div>
             <div class="header-badge"><i class="fas fa-clock"></i> <span id="currentTime"></span></div>
