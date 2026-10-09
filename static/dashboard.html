@@ -9055,7 +9055,7 @@ class BackendBridge {
         this.ws = null;
         this.wsReconnectAttempts = 0;
         this.isLocalFile = window.location.protocol === 'file:';
-        this.wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws';
+        this.wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/all';
     }
 
     init() {
