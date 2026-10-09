@@ -9580,15 +9580,42 @@ async function getWeather(options = {}) {
         if (rainSource) rainSource.textContent = `${source} · ${observedAt}`;
         backendBridge.logTerminal(`${source} weather synchronized for ${PROJECT_REGION.name}.`, 'info');
     } catch (e) {
-        const tempElem = document.getElementById('regionTemperature');
-        const rainElem = document.getElementById('regionRainfall');
-        const tempSource = document.getElementById('regionTemperatureSource');
-        const rainSource = document.getElementById('regionRainSource');
-        if (tempElem) tempElem.textContent = 'Unavailable';
-        if (rainElem) rainElem.textContent = 'Unavailable';
-        if (tempSource) tempSource.textContent = 'Open-Meteo feed could not be reached';
-        if (rainSource) rainSource.textContent = 'Open-Meteo feed could not be reached';
-        backendBridge.logTerminal(`Weather API request failed (${e.message}).`, 'warn');
+        // Open-Meteo supports browser CORS, so a temporary Render-to-provider
+        // network failure need not blank the public regional weather cards.
+        try {
+            const url = new URL('https://api.open-meteo.com/v1/forecast');
+            url.search = new URLSearchParams({
+                latitude: String(PROJECT_REGION.latitude),
+                longitude: String(PROJECT_REGION.longitude),
+                current: 'temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code',
+                timezone: 'auto'
+            });
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Open-Meteo HTTP ${response.status}`);
+            const payload = await response.json();
+            const current = payload.current || {};
+            const time = current.time || 'provider time unavailable';
+            const tempElem = document.getElementById('regionTemperature');
+            const rainElem = document.getElementById('regionRainfall');
+            if (tempElem) tempElem.textContent = current.temperature_2m == null ? 'Unavailable' : `${current.temperature_2m} °C`;
+            if (rainElem) rainElem.textContent = current.precipitation == null ? 'Unavailable' : `${current.precipitation} mm`;
+            const label = `Open-Meteo browser fallback · ${time}`;
+            const tempSource = document.getElementById('regionTemperatureSource');
+            const rainSource = document.getElementById('regionRainSource');
+            if (tempSource) tempSource.textContent = label;
+            if (rainSource) rainSource.textContent = label;
+            backendBridge.logTerminal(`Weather loaded directly from the Open-Meteo model after backend request failed (${e.message}).`, 'info');
+        } catch (fallbackError) {
+            const tempElem = document.getElementById('regionTemperature');
+            const rainElem = document.getElementById('regionRainfall');
+            const tempSource = document.getElementById('regionTemperatureSource');
+            const rainSource = document.getElementById('regionRainSource');
+            if (tempElem) tempElem.textContent = 'Unavailable';
+            if (rainElem) rainElem.textContent = 'Unavailable';
+            if (tempSource) tempSource.textContent = 'Open-Meteo feed could not be reached';
+            if (rainSource) rainSource.textContent = 'Open-Meteo feed could not be reached';
+            backendBridge.logTerminal(`Weather API and browser fallback failed (${fallbackError.message}).`, 'warn');
+        }
     }
 }
 
@@ -9603,9 +9630,10 @@ async function getRiverLevels(options = {}) {
         const gaugeElem = document.getElementById('regionGauges');
         if (gaugeElem) gaugeElem.textContent = `${count} Gauges`;
         const sourceElem = document.getElementById('regionGaugeSource');
-        if (sourceElem) sourceElem.textContent = `CWC/NWIC source · ${data.timestamp || 'updated now'}`;
+        const staleCount = Array.isArray(data.stations) ? data.stations.filter(station => station.stale).length : 0;
+        if (sourceElem) sourceElem.textContent = `CWC/NWIC · ${staleCount}/${count} records older than 24h · retrieved ${data.retrieved_at || data.timestamp || 'just now'}`;
 
-        backendBridge.logTerminal(`Central Water Commission: ${count} hydrometric gauges active in Narmada Basin.`, 'info');
+        backendBridge.logTerminal(`Central Water Commission: received ${count} Narmada Basin gauge records (${staleCount} older than 24 hours).`, staleCount ? 'warn' : 'info');
     } catch (e) {
         const gaugeElem = document.getElementById('regionGauges');
         if (gaugeElem) gaugeElem.textContent = 'Unavailable';

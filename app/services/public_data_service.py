@@ -95,7 +95,11 @@ class PublicDataService:
                 response = await client.get(f"{NWIC_API}/datastore_search", params={
                     "resource_id": NWIC_NARMADA_RESOURCE,
                     "filters": json.dumps({"State": "Madhya Pradesh"}),
-                    "limit": 20000,
+                    # The resource contains thousands of hourly rows for only a
+                    # handful of stations. Fetch the most recent page instead of
+                    # transferring the full history on every dashboard refresh.
+                    "sort": "Data Acquisition Time desc",
+                    "limit": 1000,
                 })
                 response.raise_for_status()
                 payload = response.json()

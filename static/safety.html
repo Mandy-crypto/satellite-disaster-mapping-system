@@ -233,6 +233,20 @@ function useManualLocation() {
   setPoint(lat,lon,'Chosen location'); loadArea();
 }
 
+async function fetchAreaWeather(lat,lon) {
+  try { return await api(`/api/live/weather?lat=${lat}&lon=${lon}`); }
+  catch (backendError) {
+    // Open-Meteo permits browser requests; use it when the hosted API cannot
+    // reach the provider, while retaining a clear source label in the UI.
+    const url=new URL('https://api.open-meteo.com/v1/forecast');
+    url.search=new URLSearchParams({latitude:String(lat),longitude:String(lon),current:'temperature_2m,precipitation',timezone:'auto'});
+    const response=await fetch(url);
+    if(!response.ok)throw backendError;
+    const payload=await response.json(),current=payload.current||{};
+    return {data:{temperature_c:current.temperature_2m,rainfall_mm:current.precipitation,observed_at:current.time,source:'Open-Meteo model (browser fallback; not a local station observation)'}};
+  }
+}
+
 async function loadArea() {
   if(!currentPoint) return toast('Choose a location first.');
   const radius=Number($('radius').value), {lat,lon}=currentPoint;
@@ -241,7 +255,7 @@ async function loadArea() {
   const q=`lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&radius_km=${radius}`;
   const requests=await Promise.allSettled([
     api(`/api/dashboard/statistics?${q}`),
-    api(`/api/live/weather?lat=${lat}&lon=${lon}`),
+    fetchAreaWeather(lat,lon),
     api(`/api/live/earthquakes/near?${q}&min_magnitude=2.5`),
     api(`/api/live/river-levels?${q}`),
     api(`/api/dashboard/risk-map?${q}`),
