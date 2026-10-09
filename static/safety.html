@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Personal & Family Safety · Disaster Risk Dashboard</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root{color-scheme:dark;--bg:#0b1230;--card:#20294c;--card2:#28335b;--edge:#ffffff20;--muted:#c0c9e1;--accent:#8c70ff;--red:#ff536e;--green:#36d890;--yellow:#ffd661}
@@ -64,6 +67,46 @@
     @media(max-width:900px){.wrap{padding:15px}.header{min-height:unset}.hero-globe{flex-basis:90px;width:90px;height:90px;margin:0 auto}.hero-globe::before{inset:9px}.hero-globe::after{inset:10px 22px}.hero-globe .globe-orbit{inset:19px -2px}.hero-globe .globe-ping{top:21px;right:19px;width:6px;height:6px}.grid{grid-template-columns:1fr}}
     @media(max-width:520px){.wrap{padding:11px}.header{padding:19px;border-radius:19px}.hero-globe{flex-basis:70px;width:70px;height:70px}.hero-globe::before{inset:8px}.hero-globe::after{inset:9px 18px}.hero-globe .globe-orbit{inset:15px -2px}.hero-globe .globe-ping{top:17px;right:15px;width:5px;height:5px}.card{padding:17px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+    /* AERO-SENTINEL shared site shell: same deep-space palette and HUD typography. */
+    :root{color-scheme:dark;--bg:#050813;--card:#0b132b;--card2:#121e42;--edge:rgba(148,163,184,.2);--muted:#94a3b8;--accent:#7c5cfc;--aqua:#00f2fe;--red:#ff3366;--green:#00ff88;--yellow:#ffd93d}
+    html{scroll-behavior:smooth}
+    body{font-family:Inter,"Segoe UI",sans-serif;font-size:15px;background:radial-gradient(ellipse at 78% 0%,rgba(79,70,229,.18),transparent 34%),radial-gradient(ellipse at 8% 28%,rgba(0,242,254,.08),transparent 32%),#050813;background-attachment:fixed}
+    body::before{opacity:.22;background-image:linear-gradient(rgba(0,242,254,.075) 1px,transparent 1px),linear-gradient(90deg,rgba(0,242,254,.075) 1px,transparent 1px);background-size:42px 42px}
+    .wrap{max-width:1480px;padding:24px clamp(14px,2.5vw,34px)}
+    .header{min-height:116px;padding:22px 26px;border:1px solid rgba(0,242,254,.24);border-radius:18px;background:linear-gradient(108deg,rgba(11,19,43,.97),rgba(18,30,66,.94) 58%,rgba(55,35,112,.9));box-shadow:0 18px 48px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.09)}
+    .header::after{content:"CITIZEN SAFETY / AERO-SENTINEL";position:absolute;right:24px;bottom:12px;color:rgba(0,242,254,.68);font:600 10px/1 "JetBrains Mono",monospace;letter-spacing:.13em}
+    .header h1,.card h2{font-family:Rajdhani,"Segoe UI",sans-serif;font-weight:700;letter-spacing:.015em}
+    .header h1{font-size:clamp(26px,3vw,38px);text-shadow:0 0 24px rgba(79,172,254,.25)}
+    .header p{font:12px/1.5 "JetBrains Mono",monospace;letter-spacing:.025em;color:#b7c8df}
+    .header>a{margin-right:0;padding:10px 14px;border:1px solid rgba(0,242,254,.27);border-radius:8px;background:rgba(5,8,19,.45);font:600 12px "JetBrains Mono",monospace;letter-spacing:.02em}
+    .header>a:hover{border-color:var(--aqua);box-shadow:0 0 20px rgba(0,242,254,.12)}
+    .hero-globe{display:none}
+    .grid{grid-template-columns:minmax(0,1.35fr) minmax(330px,.75fr);gap:16px}
+    .card{padding:20px;border:1px solid rgba(148,163,184,.18);border-radius:14px;background:linear-gradient(145deg,rgba(11,19,43,.94),rgba(18,30,66,.84));box-shadow:0 14px 35px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.045);backdrop-filter:blur(14px)}
+    .card:hover{border-color:rgba(0,242,254,.32);box-shadow:0 18px 40px rgba(0,0,0,.29),0 0 22px rgba(0,242,254,.045)}
+    .card h2{font-size:22px}
+    .muted,.field label,.small-label{color:#9aabc3}
+    .notice{border-color:rgba(0,242,254,.18);background:rgba(5,8,19,.48);color:#ced9e8}
+    .warning{border-color:rgba(255,217,61,.42);background:rgba(78,56,14,.38);color:#ffe8a1}
+    .good{border-color:rgba(0,255,136,.34);background:rgba(10,64,48,.42)}
+    .btn{padding:10px 14px;border:1px solid rgba(148,163,184,.23);border-radius:8px;background:linear-gradient(180deg,#172647,#101a31);font:600 12px "JetBrains Mono",monospace;letter-spacing:.025em;transition:transform .18s,border-color .18s,box-shadow .18s,filter .18s}
+    .btn:hover{transform:translateY(-2px);border-color:rgba(0,242,254,.48);box-shadow:0 8px 22px rgba(0,0,0,.26),0 0 15px rgba(0,242,254,.1)}
+    .btn.primary{background:linear-gradient(120deg,#315cdf,#7255f6);border-color:rgba(152,177,255,.58)}
+    .btn.green{background:linear-gradient(120deg,#00b97b,#00df9b);color:#04140f}
+    .btn.danger,.call{background:linear-gradient(120deg,#df315b,#ff536e);color:white!important}
+    .stat,.feed{border-color:rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(145deg,rgba(18,30,66,.78),rgba(8,15,34,.74))}
+    .stat b,.feed b{font-family:Rajdhani,"Segoe UI",sans-serif;font-size:25px;color:#e7f7ff}
+    .stat span,.feed small{font:10px/1.5 "JetBrains Mono",monospace;letter-spacing:.035em}
+    .area-map{border-color:rgba(0,242,254,.2);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.28)}
+    .leaflet-container{background:#0b132b}
+    .member,.event,.facility{border-color:rgba(148,163,184,.15);border-radius:10px;background:rgba(5,8,19,.38)}
+    input,select,textarea{border-color:rgba(148,163,184,.23);border-radius:8px;background:#080f22;color:#eef5ff}
+    input:focus,select:focus,textarea:focus{border-color:rgba(0,242,254,.65);box-shadow:0 0 0 3px rgba(0,242,254,.1)}
+    .call{border-radius:8px;font:700 12px "JetBrains Mono",monospace;box-shadow:0 7px 20px rgba(255,51,102,.18)}
+    .footer{font:10px/1.7 "JetBrains Mono",monospace;color:#7588a5}
+    .toast{border-color:rgba(0,242,254,.35);background:#0b132b;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    @media(max-width:900px){.wrap{padding:14px}.grid{grid-template-columns:1fr}.header{padding:20px 22px}.header::after{position:static;display:block;margin-top:14px}.hero-globe{display:none}}
+    @media(max-width:520px){.header{gap:12px;padding:18px}.header h1{font-size:25px}.card{padding:16px}.btn{font-size:11px}.stat-grid{gap:8px}}
   </style>
 </head>
 <body>

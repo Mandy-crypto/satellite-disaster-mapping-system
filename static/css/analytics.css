@@ -1,0 +1,344 @@
+/* ==========================================================================
+   ASTRA-GEO // SATELLITE DISASTER INTELLIGENCE PLATFORM
+   ANALYTICS, TIMELINE & SPECTRAL WORKBENCH STYLESHEET
+   ========================================================================== */
+
+/* Bottom Deck Layout */
+.bottom-deck-header {
+  height: 38px;
+  min-height: 38px;
+  background: rgba(16, 22, 38, 0.7);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.bottom-deck-tabs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bottom-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  transition: all var(--transition-fast);
+  border-bottom: 2px solid transparent;
+}
+
+.bottom-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.bottom-tab-btn.active {
+  color: var(--accent-cyan);
+  border-bottom-color: var(--accent-cyan);
+}
+
+.bottom-deck-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+}
+
+.bottom-panel {
+  width: 100%;
+  height: 100%;
+  display: none;
+  padding: 10px 16px;
+  overflow: hidden;
+}
+
+.bottom-panel.active {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 4D Temporal Timeline Scrubber */
+.timeline-scrubber-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.timeline-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timeline-playback-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeline-time-display {
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  background: rgba(10, 14, 26, 0.7);
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeline-track-wrapper {
+  position: relative;
+  width: 100%;
+  height: 48px;
+  background: rgba(10, 14, 26, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 12px;
+}
+
+.timeline-ticks-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+.timeline-keyframe-markers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.timeline-keyframe-pin {
+  position: absolute;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  pointer-events: auto;
+  border: 1px solid #fff;
+}
+
+.timeline-slider-rail {
+  position: relative;
+  width: 100%;
+  z-index: 10;
+}
+
+/* Multispectral Workbench & Band Combinations */
+.spectral-workbench-panel {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 16px;
+  align-items: center;
+}
+
+.band-selector-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 260px;
+}
+
+.band-btn-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.band-mode-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.band-mode-btn:hover {
+  border-color: var(--accent-cyan);
+  color: var(--text-primary);
+}
+
+.band-mode-btn.active {
+  background: var(--accent-cyan-dim);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.spectral-histogram-box {
+  flex: 1;
+  height: 100%;
+  background: rgba(10, 14, 26, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.histogram-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+#spectral-histogram-canvas {
+  width: 100%;
+  flex: 1;
+  display: block;
+}
+
+/* Telemetry Stream Console Log */
+.telemetry-log-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.telemetry-log-container {
+  flex: 1;
+  background: #020408;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.log-entry {
+  display: flex;
+  gap: 10px;
+  line-height: 1.4;
+}
+
+.log-entry .log-time { color: var(--text-dim); }
+.log-entry .log-source { color: var(--accent-cyan); font-weight: 600; min-width: 80px; }
+.log-entry .log-msg { color: var(--text-primary); }
+.log-entry.alert .log-msg { color: var(--accent-crimson); font-weight: 600; }
+.log-entry.success .log-msg { color: var(--accent-emerald); }
+.log-entry.warn .log-msg { color: var(--accent-amber); }
+
+/* Situation Report Print / Modal Styling */
+.sitrep-document-view {
+  background: #0a0f1d;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  line-height: 1.6;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.sitrep-doc-header {
+  border-bottom: 2px solid var(--accent-cyan);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.sitrep-doc-title h2 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.sitrep-doc-title p {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.sitrep-doc-section {
+  margin-bottom: 16px;
+}
+
+.sitrep-doc-section h3 {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed var(--border-subtle);
+  padding-bottom: 4px;
+}
+
+.sitrep-stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+}
+
+.sitrep-stat-table th, .sitrep-stat-table td {
+  padding: 6px 10px;
+  border: 1px solid var(--border-subtle);
+  text-align: left;
+}
+
+.sitrep-stat-table th {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.sitrep-stat-table tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}

@@ -1,0 +1,503 @@
+/* ==========================================================================
+   ASTRA-GEO // SATELLITE DISASTER INTELLIGENCE PLATFORM
+   MAP & 3D GLOBE VIEWPORTS STYLESHEET
+   ========================================================================== */
+
+/* 3D WebGL Globe Viewport */
+.viewport-3d-globe {
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, #0a1128 0%, #050811 100%);
+  overflow: hidden;
+}
+
+#globe-canvas-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#globe-three-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* 2D Tactical GIS Map Viewport */
+.viewport-2d-gis {
+  position: relative;
+  background: #080d1a;
+  overflow: hidden;
+}
+
+#leaflet-map-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background: #080d1a;
+}
+
+/* Tactical Overlay Canvas (Vector Layers & Custom Symbology) */
+#tactical-vector-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* Radar Sweep Beam Effect */
+.radar-sweep-cone {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 280px;
+  height: 280px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  border-radius: 50%;
+  border: 1px dashed var(--accent-cyan-dim);
+  background: conic-gradient(from 0deg, rgba(0, 240, 255, 0.22) 0deg, transparent 65deg, transparent 360deg);
+  animation: radar-rotate 4s linear infinite;
+  display: none;
+}
+
+.radar-sweep-cone.active {
+  display: block;
+}
+
+@keyframes radar-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* HUD Tactical Reticle & Crosshairs */
+.tactical-hud-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 25;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.7);
+}
+
+.hud-corner-bracket {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--accent-cyan-dim);
+  pointer-events: none;
+}
+
+.hud-corner-bracket.tl { top: 16px; left: 16px; border-top: 2px solid; border-left: 2px solid; }
+.hud-corner-bracket.tr { top: 16px; right: 16px; border-top: 2px solid; border-right: 2px solid; }
+.hud-corner-bracket.bl { bottom: 16px; left: 16px; border-bottom: 2px solid; border-left: 2px solid; }
+.hud-corner-bracket.br { bottom: 16px; right: 16px; border-bottom: 2px solid; border-right: 2px solid; }
+
+.hud-center-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.hud-center-crosshair::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 19px; width: 2px; height: 40px;
+  background: var(--accent-cyan);
+}
+.hud-center-crosshair::after {
+  content: '';
+  position: absolute;
+  top: 19px; left: 0; width: 40px; height: 2px;
+  background: var(--accent-cyan);
+}
+
+/* Viewport Header Bar (Floating Tactical Info) */
+.viewport-floating-header {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.viewport-floating-header > * {
+  pointer-events: auto;
+}
+
+.viewport-title-pill {
+  background: rgba(10, 14, 26, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-cyan);
+  padding: 6px 12px;
+  border-radius: var(--radius-xs);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.viewport-mode-switcher {
+  display: flex;
+  background: rgba(10, 14, 26, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 3px;
+  gap: 4px;
+  backdrop-filter: blur(8px);
+}
+
+.viewport-mode-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.viewport-mode-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.viewport-mode-btn.active {
+  background: var(--accent-cyan-dim);
+  color: var(--accent-cyan);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 0 8px var(--accent-cyan-dim);
+}
+
+/* Floating Tactical Map Controls */
+.tactical-map-controls {
+  position: absolute;
+  top: 60px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 30;
+}
+
+.map-control-btn {
+  width: 34px;
+  height: 34px;
+  background: rgba(16, 22, 38, 0.88);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.map-control-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan-dim);
+}
+
+.map-control-btn.active {
+  background: var(--accent-cyan-dim);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+/* Layer Control Floating Drawer */
+.tactical-layer-palette {
+  position: absolute;
+  top: 60px;
+  left: 14px;
+  width: 240px;
+  background: rgba(10, 14, 26, 0.92);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(12px);
+  z-index: 30;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.tactical-layer-palette.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+}
+
+.layer-palette-title {
+  color: var(--text-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 6px;
+}
+
+.layer-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  color: var(--text-secondary);
+}
+
+.layer-item-row:hover {
+  color: var(--text-primary);
+}
+
+.layer-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.layer-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Switch Toggle Component */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 18px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  transition: var(--transition-fast);
+  border-radius: 10px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--text-muted);
+  transition: var(--transition-fast);
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--accent-cyan-dim);
+  border-color: var(--accent-cyan);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(14px);
+  background-color: var(--accent-cyan);
+  box-shadow: 0 0 6px var(--accent-cyan);
+}
+
+/* Coordinate & Altitude Floating HUD */
+.map-coordinate-hud {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  background: rgba(10, 14, 26, 0.88);
+  border: 1px solid var(--border-subtle);
+  padding: 5px 12px;
+  border-radius: var(--radius-xs);
+  backdrop-filter: blur(8px);
+  z-index: 30;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.map-coordinate-hud span.val {
+  color: var(--accent-cyan);
+  font-weight: 500;
+}
+
+/* Comparison Swipe Split-Curtain Lens */
+.swipe-comparison-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 22;
+  display: none;
+}
+
+.swipe-comparison-container.active {
+  display: block;
+}
+
+.swipe-curtain-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 50%;
+  overflow: hidden;
+  border-right: 2px solid var(--accent-cyan);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+}
+
+.swipe-curtain-handle {
+  position: absolute;
+  top: 50%;
+  right: -15px;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  background: var(--bg-primary);
+  border: 2px solid var(--accent-cyan);
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: ew-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan-dim);
+}
+
+.curtain-tag {
+  position: absolute;
+  bottom: 16px;
+  padding: 4px 8px;
+  background: rgba(10, 14, 26, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.curtain-tag.before { left: 20px; color: var(--accent-emerald); border-color: var(--accent-emerald); }
+.curtain-tag.after { right: 20px; color: var(--accent-crimson); border-color: var(--accent-crimson); }
+
+/* Custom Marker Styling for Leaflet */
+.tactical-marker-pin {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.tactical-marker-pin .pin-core {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.tactical-marker-pin .pin-pulse {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.8;
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* Satellite Marker on 2D Map */
+.satellite-map-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.satellite-map-marker .sat-icon {
+  width: 22px;
+  height: 22px;
+  background: var(--bg-primary);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 4px;
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px var(--accent-cyan-dim);
+}
+
+.satellite-map-marker .sat-name {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #fff;
+  background: rgba(10, 14, 26, 0.8);
+  padding: 1px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+  margin-top: 2px;
+}
