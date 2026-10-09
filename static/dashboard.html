@@ -1822,7 +1822,7 @@
         </header>
 
         <div role="note" style="margin:10px 18px;padding:9px 14px;border:1px solid rgba(0,223,255,.2);border-radius:10px;background:rgba(4,12,21,.62);color:#b8cbd7;font-size:12px;line-height:1.5">
-            <strong style="color:#00dfff">DATA SCOPE</strong> · Live readings appear only when a connected source provides them. Sensor counts, satellite assessments, and official warnings are not inferred; map scenarios and physics tools are illustrative.
+            <strong style="color:#00dfff">DATA SCOPE</strong> · Choose <b>Use my location</b> to view regional feeds for your area; location is requested only after you click and used for this visit’s feed queries, with no dashboard profile created. Open-Meteo weather and USGS earthquakes are global; CWC gauges cover the Narmada basin in Madhya Pradesh and IMD warnings cover India. Sentinel-2 scene availability varies by date and cloud cover; opening the browser does not perform an assessment. Satellite risk analysis requires a georeferenced image to be processed; map scenarios are illustrative.
         </div>
 
         <!-- LOCAL FILE NOTICE BANNER (IF OPENED DIRECTLY) -->
@@ -1929,6 +1929,9 @@
              ACTION & TOOLBAR RIBBON (ALL CORE & PRO TOOLS)
              ========================================================================== -->
         <div class="action-ribbon">
+            <button class="btn-tactical" id="useMyLocationBtn" onclick="useVisitorLocation()" title="Use your device location to select a regional view; location permission is requested only when clicked">
+                <i class="fas fa-location-crosshairs"></i> Use my location
+            </button>
             <button class="btn-tactical primary" onclick="loadAll()" title="Fetch all REST API endpoints & refresh cockpit">
                 <i class="fas fa-rotate"></i> Load All Data
             </button>
@@ -1941,8 +1944,8 @@
             <button class="btn-tactical" onclick="getWeather()" title="Poll Open-Meteo meteorological radar & weather data">
                 <i class="fas fa-cloud-sun"></i> Weather
             </button>
-            <button class="btn-tactical" onclick="getRiverLevels()" title="Poll Central Water Commission river hydrometry">
-                <i class="fas fa-water"></i> CWC River Gauges
+            <button class="btn-tactical" onclick="getRiverLevels()" title="Poll CWC/NWIC river gauge records; available regional data covers the Narmada basin in Madhya Pradesh">
+                <i class="fas fa-water"></i> CWC Gauges (India)
             </button>
             <button class="btn-tactical warning" onclick="getIndiaWarnings()" title="Poll India Meteorological Department warnings">
                 <i class="fas fa-triangle-exclamation"></i> IMD Warnings
@@ -1952,6 +1955,9 @@
 
             <a class="btn-tactical" href="/docs" target="_blank" title="Open FastAPI Interactive Swagger Documentation">
                 <i class="fas fa-satellite"></i> Satellite Ingest
+            </a>
+            <a class="btn-tactical" id="copernicusBrowserLink" href="https://browser.dataspace.copernicus.eu/" target="_blank" rel="noopener" title="Explore worldwide Sentinel-2 Level-1C imagery for the selected coordinates in the official Copernicus Browser; scene dates and products vary">
+                <i class="fas fa-earth-europe"></i> Sentinel-2 Browser
             </a>
             <a class="btn-tactical" href="/static/safety.html" target="_blank" title="Open Citizen & Family Disaster Safety Portal">
                 <i class="fas fa-users-viewfinder"></i> Citizen Safety Portal
@@ -9095,7 +9101,7 @@ class BackendBridge {
             if (res.ok) {
                 this.setApiStatus(true, 'API Live 200 OK');
                 const data = await res.json();
-                if (data.region) updateProjectRegion(data.region);
+                if (data.region && !visitorRegionSelected) updateProjectRegion(data.region);
             } else {
                 this.setApiStatus(false, `API HTTP ${res.status}`);
             }
@@ -9193,6 +9199,9 @@ let regionBoundary = null;
 let floodLayer = null;
 let faultLayers = [];
 let zoneLayers = [];
+let regionalStaticLayers = [];
+let liveRiverMarkers = [];
+let visitorRegionSelected = false;
 let routePolylineLayer = null;
 
 const PROJECT_REGION = {
@@ -9227,19 +9236,21 @@ function initMap() {
     L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
 
     // Render Narmada River Polyline
-    L.polyline(window.GEOSPATIAL_DATABASE.narmadaRiverLine, {
+    const narmadaLayer = L.polyline(window.GEOSPATIAL_DATABASE.narmadaRiverLine, {
         color: '#00f2fe',
         weight: 3.5,
         opacity: 0.85
     }).addTo(map).bindPopup('<b>Narmada River Basin Main Stem</b><br>Major Indian West-Flowing Drainage Arterial');
+    regionalStaticLayers.push(narmadaLayer);
 
     // Render Bargi Dam Reservoir Polygon
-    L.polygon(window.GEOSPATIAL_DATABASE.bargiReservoirPolygon, {
+    const reservoirLayer = L.polygon(window.GEOSPATIAL_DATABASE.bargiReservoirPolygon, {
         color: '#4facfe',
         fillColor: '#00f2fe',
         fillOpacity: 0.25,
         weight: 2
     }).addTo(map).bindPopup('<b>Bargi Dam Reservoir (Rani Avantibai Sagar)</b><br>Storage Capacity: 3.92 Billion m³');
+    regionalStaticLayers.push(reservoirLayer);
 
     // Render Municipal Hazard Zones
     renderMunicipalZones();
@@ -9254,11 +9265,26 @@ function initMap() {
     updateProjectRegion(PROJECT_REGION);
 }
 
-function updateProjectRegion(region) {
+function updateProjectRegion(region, options = {}) {
     Object.assign(PROJECT_REGION, region || {});
     const radius = Number(PROJECT_REGION.radius_km) || 250;
     const badge = document.getElementById('regionScopeBadge');
     if (badge) badge.textContent = `REGION: ${PROJECT_REGION.name}`;
+
+    const earthRadiusKm = 6371.0088;
+    const toRadians = degrees => degrees * Math.PI / 180;
+    const dLat = toRadians(PROJECT_REGION.latitude - 23.181);
+    const dLon = toRadians(PROJECT_REGION.longitude - 79.951);
+    const anchorDistanceKm = 2 * earthRadiusKm * Math.asin(Math.sqrt(
+        Math.sin(dLat / 2) ** 2 + Math.cos(toRadians(23.181)) * Math.cos(toRadians(PROJECT_REGION.latitude)) * Math.sin(dLon / 2) ** 2
+    ));
+    // These embedded river, dam, municipal-zone, gauge and fault overlays are
+    // Jabalpur examples. Hide them when a visitor selects a different region.
+    const showJabalpurExamples = anchorDistanceKm <= 30;
+    regionalStaticLayers.forEach(layer => {
+        if (showJabalpurExamples && !map.hasLayer(layer)) layer.addTo(map);
+        else if (!showJabalpurExamples && map.hasLayer(layer)) map.removeLayer(layer);
+    });
 
     if (regionBoundary && map) map.removeLayer(regionBoundary);
     if (map) {
@@ -9270,7 +9296,9 @@ function updateProjectRegion(region) {
             fillColor: '#7c5cfc',
             fillOpacity: 0.03
         }).addTo(map);
+        if (options.recenter) map.flyTo([PROJECT_REGION.latitude, PROJECT_REGION.longitude], 7, { duration: 1.2 });
     }
+    updateCopernicusBrowserLink();
 }
 
 function renderMunicipalZones() {
@@ -9295,6 +9323,7 @@ function renderMunicipalZones() {
             </div>
         `);
         zoneLayers.push(poly);
+        regionalStaticLayers.push(poly);
     });
 }
 
@@ -9339,6 +9368,7 @@ function renderCwcGauges() {
             </div>
         `);
         riverMarkers.push(marker);
+        regionalStaticLayers.push(marker);
     });
 }
 
@@ -9363,6 +9393,23 @@ function renderFaultLines() {
             </div>
         `);
         faultLayers.push(line);
+        regionalStaticLayers.push(line);
+    });
+}
+
+function renderLiveRiverStations(stations = []) {
+    liveRiverMarkers.forEach(marker => { if (map?.hasLayer(marker)) map.removeLayer(marker); });
+    liveRiverMarkers = [];
+    if (!map || !Array.isArray(stations)) return;
+    stations.forEach(station => {
+        const latitude = Number(station.latitude), longitude = Number(station.longitude);
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+        const marker = L.circleMarker([latitude, longitude], {
+            radius: 7, color: '#eafaff', weight: 1.5,
+            fillColor: station.stale ? '#8996aa' : '#00dfff', fillOpacity: 0.9
+        }).addTo(map);
+        marker.bindPopup(`<b>${station.station_name || 'CWC gauge'}</b><br>${station.river || 'River'} · ${station.gauge_level_m ?? '—'} m<br>${station.timestamp || 'Observation time unavailable'}${station.stale ? '<br><b>Stale record: older than 24 hours</b>' : ''}<br>Source: Central Water Commission via NWIC`);
+        liveRiverMarkers.push(marker);
     });
 }
 
@@ -9424,6 +9471,47 @@ function recenterToProjectRegion() {
     tacticalAudio.playClick();
 }
 
+function useVisitorLocation() {
+    const button = document.getElementById('useMyLocationBtn');
+    if (!navigator.geolocation) {
+        backendBridge.logTerminal('This browser does not support location access. The configured regional view is unchanged.', 'warn');
+        return;
+    }
+    if (button) { button.disabled = true; button.innerHTML = '<i class="fas fa-location-crosshairs"></i> Locating…'; }
+    navigator.geolocation.getCurrentPosition(position => {
+        const latitude = Number(position.coords.latitude.toFixed(6));
+        const longitude = Number(position.coords.longitude.toFixed(6));
+        visitorRegionSelected = true;
+        updateProjectRegion({
+            name: `Selected area ${latitude.toFixed(3)}°, ${longitude.toFixed(3)}°`,
+            latitude,
+            longitude,
+            radius_km: PROJECT_REGION.radius_km,
+            scope: `within ${PROJECT_REGION.radius_km} km of the selected location`
+        }, { recenter: true });
+        if (button) { button.disabled = false; button.innerHTML = '<i class="fas fa-location-crosshairs"></i> Update my location'; }
+        backendBridge.logTerminal('Using your selected device location for available regional public feeds. Coordinates are not saved by this dashboard.', 'info');
+        loadAll();
+    }, error => {
+        if (button) { button.disabled = false; button.innerHTML = '<i class="fas fa-location-crosshairs"></i> Use my location'; }
+        const message = error.code === 1 ? 'Location permission was declined; the configured region remains selected.' : 'Could not read your location; the configured region remains selected.';
+        backendBridge.logTerminal(message, 'warn');
+    }, { enableHighAccuracy: false, maximumAge: 300000, timeout: 15000 });
+}
+
+function updateCopernicusBrowserLink() {
+    const link = document.getElementById('copernicusBrowserLink');
+    if (!link) return;
+    const url = new URL('https://browser.dataspace.copernicus.eu/');
+    url.search = new URLSearchParams({
+        lat: String(PROJECT_REGION.latitude),
+        lng: String(PROJECT_REGION.longitude),
+        zoom: '11',
+        themeId: 'DEFAULT-THEME'
+    });
+    link.href = url.toString();
+}
+
 // ============================================================================
 // MODULE 13: CORE ACTION DISPATCHERS & REST API INTEGRATIONS
 // ============================================================================
@@ -9434,18 +9522,33 @@ async function loadAll() {
     if (resultBox) resultBox.textContent = 'Initiating full multi-sensor refresh sequence…';
 
     try {
-        const regionRes = await fetch('/api/dashboard/statistics');
+        const regionParams = new URLSearchParams({
+            lat: String(PROJECT_REGION.latitude),
+            lon: String(PROJECT_REGION.longitude),
+            radius_km: String(PROJECT_REGION.radius_km)
+        });
+        const regionRes = await fetch(`/api/dashboard/statistics?${regionParams}`);
         if (regionRes.ok) {
             const regionInfo = await regionRes.json();
-            if (regionInfo.region) updateProjectRegion(regionInfo.region);
+            if (regionInfo.region) {
+                updateProjectRegion(visitorRegionSelected
+                    ? { ...regionInfo.region, ...PROJECT_REGION, name: PROJECT_REGION.name }
+                    : regionInfo.region);
+            }
             const stats = regionInfo.statistics || {};
             const setMetric = (id, value) => {
                 const element = document.getElementById(id);
                 if (element) element.textContent = value == null ? '—' : value;
             };
+            const setMetricHint = (id, text) => {
+                const element = document.getElementById(id)?.closest('.metric-card')?.querySelector('.metric-subtext');
+                if (element) element.textContent = text;
+            };
             const formatArea = value => value == null ? '—' : Number(value).toLocaleString('en-IN', { maximumFractionDigits: 1 });
             setMetric('totalArea', formatArea(stats.total_area_km2));
             setMetric('affectedArea', formatArea(stats.affected_area_km2));
+            setMetricHint('totalArea', stats.satellite_status === 'available' ? 'Processed scene in selected region' : 'No georeferenced scene assessed here');
+            setMetricHint('affectedArea', stats.satellite_status === 'available' ? 'From processed satellite analysis' : 'No flood analysis available here');
             updateStats({
                 critical: stats.critical_zones ?? '—',
                 high: stats.high_zones ?? '—',
@@ -9453,8 +9556,12 @@ async function loadAll() {
                 low: stats.low_zones ?? '—',
                 sensors: stats.active_sensors ?? '—'
             });
+            const assessmentHint = stats.assessment_status === 'available' ? 'From assessed project data' : 'No risk assessment for this area';
+            ['criticalZones', 'highZones', 'mediumZones', 'lowZones'].forEach(id => setMetricHint(id, assessmentHint));
+            setMetricHint('activeSensors', stats.active_sensors ? 'Connected readings in selected region' : 'No connected readings in selected region');
             const confidence = stats.avg_confidence;
             setMetric('confidence', confidence == null ? '—' : `${(Number(confidence) <= 1 ? Number(confidence) * 100 : Number(confidence)).toFixed(1)}%`);
+            setMetricHint('confidence', confidence == null ? 'No model assessment for this area' : 'Confidence from assessed project data');
             backendBridge.setApiStatus(true, 'API Connected');
         }
     } catch (e) {
@@ -9626,15 +9733,17 @@ async function getRiverLevels(options = {}) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const count = data.count ?? (Array.isArray(data.stations) ? data.stations.length : 0);
+        renderLiveRiverStations(data.stations || []);
 
         const gaugeElem = document.getElementById('regionGauges');
         if (gaugeElem) gaugeElem.textContent = `${count} Gauges`;
         const sourceElem = document.getElementById('regionGaugeSource');
         const staleCount = Array.isArray(data.stations) ? data.stations.filter(station => station.stale).length : 0;
-        if (sourceElem) sourceElem.textContent = `CWC/NWIC · ${staleCount}/${count} records older than 24h · retrieved ${data.retrieved_at || data.timestamp || 'just now'}`;
+        if (sourceElem) sourceElem.textContent = `Narmada basin, India · ${staleCount}/${count} records older than 24h · retrieved ${data.retrieved_at || data.timestamp || 'just now'}`;
 
         backendBridge.logTerminal(`Central Water Commission: received ${count} Narmada Basin gauge records (${staleCount} older than 24 hours).`, staleCount ? 'warn' : 'info');
     } catch (e) {
+        renderLiveRiverStations([]);
         const gaugeElem = document.getElementById('regionGauges');
         if (gaugeElem) gaugeElem.textContent = 'Unavailable';
         const sourceElem = document.getElementById('regionGaugeSource');
@@ -9650,10 +9759,10 @@ async function getIndiaWarnings(options = {}) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (data.status === 'unconfigured') {
-            backendBridge.logTerminal(`Official India warnings are unavailable: ${data.message || 'provider access is not configured'}.`, 'warn');
+            backendBridge.logTerminal(`IMD is an India-only warning feed and is unavailable: ${data.message || 'provider access is not configured'}.`, 'warn');
             return;
         }
-        backendBridge.logTerminal(`Official India warnings feed returned ${data.count ?? 'an unknown number of'} records.`, 'info');
+        backendBridge.logTerminal(`India Meteorological Department warning feed returned ${data.count ?? 'an unknown number of'} records; this feed is India-only.`, 'info');
     } catch (e) {
         backendBridge.logTerminal(`IMD warning portal quiet or offline (${e.message}).`, 'info');
     }

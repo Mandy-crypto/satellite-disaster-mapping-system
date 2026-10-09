@@ -96,7 +96,7 @@
     .btn.danger,.call{background:linear-gradient(120deg,#df315b,#ff536e);color:white!important}
     .stat,.feed{border-color:rgba(148,163,184,.16);border-radius:12px;background:linear-gradient(145deg,rgba(18,30,66,.78),rgba(8,15,34,.74))}
     .stat b,.feed b{font-family:Rajdhani,"Segoe UI",sans-serif;font-size:25px;color:#e7f7ff}
-    .stat span,.feed small{font:10px/1.5 "JetBrains Mono",monospace;letter-spacing:.035em}
+    .stat span,.feed small,.stat small{font:10px/1.5 "JetBrains Mono",monospace;letter-spacing:.035em;color:#9aabc3}
     .area-map{border-color:rgba(0,242,254,.2);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.28)}
     .leaflet-container{background:#0b132b}
     .member,.event,.facility{border-color:rgba(148,163,184,.15);border-radius:10px;background:rgba(5,8,19,.38)}
@@ -120,7 +120,7 @@
   <div class="grid">
     <section class="card">
       <h2>Your area</h2>
-      <p class="muted">Choose a location to check available weather, earthquake, river, and assessed risk-zone information. Location is not saved unless you turn on family sharing below.</p>
+      <p class="muted">Choose any location worldwide to check available weather, earthquake, river, and assessed risk-zone information. Device location is requested only when you press the button. Weather and USGS earthquake feeds are global; CWC gauges are Narmada basin records from India, and project risk zones exist only where imagery/readings have been assessed.</p>
       <div class="buttons">
         <button class="btn primary" id="locateBtn" onclick="useMyLocation()">Use my current location</button>
         <button class="btn" onclick="loadArea()">Refresh this area</button>
@@ -132,11 +132,13 @@
         <div class="field"><label for="manualLon">Longitude</label><input id="manualLon" type="number" min="-180" max="180" step="any" placeholder="e.g. 79.951"></div>
       </div>
       <div class="buttons"><button class="btn" onclick="useManualLocation()">Check these coordinates</button></div>
+      <div class="buttons"><a id="areaSatelliteLink" class="btn link hidden" href="https://browser.dataspace.copernicus.eu/" target="_blank" rel="noopener">Explore Sentinel-2 imagery for this area</a></div>
+      <p class="muted">Copernicus Browser opens imagery at this point; it does not send a scene into this app or create a risk assessment. Scene availability depends on date, product, and cloud cover.</p>
       <div class="stat-grid">
         <div class="stat"><b id="riskStatus">—</b><span>Assessed risk zones</span></div>
         <div class="stat"><b id="activeSensors">—</b><span>Sensor readings</span></div>
         <div class="stat"><b id="earthquakeCount">—</b><span>Nearby earthquakes</span></div>
-        <div class="stat"><b id="gaugeCount">—</b><span>River gauge records</span></div>
+        <div class="stat"><b id="gaugeCount">—</b><span>River gauge records</span><small id="gaugeCoverage">Narmada basin · India only</small></div>
       </div>
       <div class="feeds">
         <div class="feed"><h3>Temperature</h3><b id="temperature">—</b><small id="weatherTime">Waiting for a location</small></div>
@@ -150,10 +152,10 @@
 
     <div>
       <section class="card">
-        <div class="row-title"><h2>Nearby emergency help</h2><a class="call" href="tel:112">Call 112</a></div>
-        <p class="muted">Find mapped police stations, shelters, fire stations, and medical facilities near the selected location.</p>
+        <div class="row-title"><h2>Nearby emergency help</h2><a class="call" href="tel:112">Call 112 where supported</a></div>
+        <p class="muted">Find mapped police stations, shelters, fire stations, and medical facilities within 25 km of the selected location. Results are community listings and may be incomplete.</p>
         <div class="buttons"><button class="btn primary" onclick="loadHelp()">Find nearby help</button></div>
-        <div id="helpNotice" class="notice warning">Community map listings may be incomplete. This tool does not send a request or alert to the listed facilities. In India, the official emergency response number is 112.</div>
+        <div id="helpNotice" class="notice warning">Community map listings may be incomplete or unverified. This tool does not contact the listed facilities. Directions open Google Maps and share the selected start and destination coordinates with Google. Emergency numbers vary by country; 112 is India’s official number and works only where supported.</div>
         <div id="helpList" class="muted">Choose a location to search nearby listings.</div>
       </section>
 
@@ -207,6 +209,9 @@ function setPoint(lat,lon,label) {
   currentPoint={lat:Number(lat),lon:Number(lon),label};
   $('manualLat').value=currentPoint.lat.toFixed(6); $('manualLon').value=currentPoint.lon.toFixed(6);
   $('locationLabel').textContent=`${label} · ${currentPoint.lat.toFixed(5)}, ${currentPoint.lon.toFixed(5)}`;
+  const satelliteUrl=new URL('https://browser.dataspace.copernicus.eu/');
+  satelliteUrl.search=new URLSearchParams({lat:String(currentPoint.lat),lng:String(currentPoint.lon),zoom:'11',themeId:'DEFAULT-THEME'});
+  $('areaSatelliteLink').href=satelliteUrl.toString(); $('areaSatelliteLink').classList.remove('hidden');
   if(map) {
     if(areaCircle) map.removeLayer(areaCircle); if(currentMarker) map.removeLayer(currentMarker);
     areaCircle=L.circle([currentPoint.lat,currentPoint.lon],{radius:Number($('radius').value)*1000,color:'#a18cff',fillColor:'#735cff',fillOpacity:.08}).addTo(map);
@@ -275,6 +280,7 @@ async function loadArea() {
   else { $('temperature').textContent='Unavailable'; $('rainfall').textContent='Unavailable'; $('weatherTime').textContent='Weather provider unavailable'; }
   $('earthquakeCount').textContent=quakes?.count??'—';
   $('gaugeCount').textContent=rivers?.count??'—';
+  $('gaugeCoverage').textContent=rivers?.coverage?`${rivers.coverage} · ${rivers.stations?.filter(s=>s.stale).length||0} stale records`:'Narmada basin · India only; feed unavailable';
   if(map) {
     featureMarkers.forEach(m=>map.removeLayer(m)); featureMarkers=[];
     (zones?.zones||[]).forEach(zone=>{
@@ -284,9 +290,9 @@ async function loadArea() {
       marker.bindPopup(`<b>${esc(level)} risk</b><br>${esc(zone.explanation||zone.zone_id||'Assessed project zone')}`); featureMarkers.push(marker);
     });
     (rivers?.stations||[]).forEach(station=>{
-      if(!Number.isFinite(Number(station.latitude))||!Number.isFinite(Number(station.longitude))) return;
-      const marker=L.circleMarker([Number(station.latitude),Number(station.longitude)],{radius:7,color:'#fff',weight:1,fillColor:station.stale?'#8e99ae':'#21d1e7',fillOpacity:.9}).addTo(map);
-      marker.bindPopup(`<b>${esc(station.station_name)}</b><br>${esc(station.river||'River gauge')} · ${esc(station.timestamp||'time unavailable')}<br>${station.stale?'Record older than 24 hours.':''}`); featureMarkers.push(marker);
+      const lat=Number(station.latitude),lon=Number(station.longitude);if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
+      const marker=L.circleMarker([lat,lon],{radius:7,color:'#fff',weight:1,fillColor:station.stale?'#8996aa':'#00dfff',fillOpacity:.9}).addTo(map);
+      marker.bindPopup(`<b>${esc(station.station_name||'CWC river gauge')}</b><br>${esc(station.river||'River')} · ${esc(station.gauge_level_m??'—')} m<br>${esc(station.timestamp||'time unavailable')}${station.stale?'<br>Stale record: older than 24 hours.':''}`);featureMarkers.push(marker);
     });
     if(sensors?.readings) sensors.readings.forEach(reading=>{
       const lat=Number(reading.latitude),lon=Number(reading.longitude); if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
@@ -302,12 +308,16 @@ async function loadHelp() {
   $('helpList').textContent='Searching public map listings…';
   try {
     const result=await api(`/api/safety/nearby-help?lat=${currentPoint.lat}&lon=${currentPoint.lon}&radius_km=${Math.min(Number($('radius').value),25)}`);
-    $('helpNotice').textContent=result.notice;
-    if(!result.facilities.length) { $('helpList').textContent='No mapped facilities were returned in this radius. You can still call 112 in India.'; return; }
-    $('helpList').innerHTML=result.facilities.map(f=>{
+    $('helpNotice').textContent=`${result.notice} Directions open Google Maps and share the selected start and destination coordinates with Google.`;
+    if(!result.facilities.length) { $('helpList').textContent='No mapped facilities were returned in this radius. Use your local emergency number; in India, call 112.'; return; }
+    const nearestShelter=result.facilities.find(f=>f.category==='shelter');
+    const directions=(f)=>`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${currentPoint.lat},${currentPoint.lon}`)}&destination=${encodeURIComponent(`${f.latitude},${f.longitude}`)}&travelmode=walking`;
+    const shelterCard=nearestShelter?`<div class="notice good"><b>Nearest mapped shelter · ${esc(nearestShelter.distance_km)} km</b><br>${esc(nearestShelter.name)}<div class="buttons"><a class="btn green link" href="${directions(nearestShelter)}" target="_blank" rel="noopener">Get directions</a><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${nearestShelter.latitude},${nearestShelter.longitude}`)}" target="_blank" rel="noopener">View on map</a></div><small>Community listing; confirm it is open and safe before traveling.</small></div>`:'';
+    $('helpList').innerHTML=shelterCard+result.facilities.map(f=>{
       const mapUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${f.latitude},${f.longitude}`)}`;
       const phone=f.phone?`<a href="tel:${encodeURIComponent(f.phone)}">Call listed number</a>`:'';
-      return `<div class="facility"><div><b>${esc(f.name)}</b><div class="muted">${esc(f.category.replaceAll('_',' '))} · ${f.distance_km} km · ${esc(f.source)}</div></div><div>${phone} <a href="${mapUrl}" target="_blank" rel="noopener">Map</a></div></div>`;
+      const routeUrl=directions(f);
+      return `<div class="facility"><div><b>${esc(f.name)}</b><div class="muted">${esc(f.category.replaceAll('_',' '))} · ${f.distance_km} km · ${esc(f.source)}</div></div><div class="buttons"><a class="btn link" href="${routeUrl}" target="_blank" rel="noopener">Directions</a>${phone}<a href="${mapUrl}" target="_blank" rel="noopener">Map</a></div></div>`;
     }).join('');
   } catch(error) { $('helpList').textContent=error.message; }
 }
@@ -376,7 +386,7 @@ async function refreshFamilyGroup() {
     $('familyGroup').innerHTML=`<div class="notice good"><b>${esc(data.group.group_name)}</b><br>Updates appear here while this group is open. Location shown is the last point received.</div>${invitePanel}
       <div class="field"><label><input id="sharingToggle" type="checkbox" style="width:auto;margin-right:6px" ${own?.sharing_enabled&&Date.now()-new Date(own.location_updated_at||0).getTime()<120000?'checked':''} onchange="toggleSharing(this.checked)">Share my location while this page is open</label></div>
       <div class="muted">Location is sent only while this switch is on, permission is granted, and this page remains open. Closing the page stops updates; others will see the last point and its time. Last point and in-app alerts are deleted after 30 days.</div>
-      <div class="buttons"><button class="btn danger" onclick="sendHelpAlert()">Send in-app help alert</button><a class="call" href="tel:112">Call 112</a><button class="btn" onclick="leaveFamilyGroup()">Leave group</button><button class="btn" onclick="refreshFamilyGroup()">Refresh group</button></div>
+      <div class="buttons"><button class="btn danger" onclick="sendHelpAlert()">Send in-app help alert</button><a class="call" href="tel:112">Call 112 where supported</a><button class="btn" onclick="leaveFamilyGroup()">Leave group</button><button class="btn" onclick="refreshFamilyGroup()">Refresh group</button></div>
       <div class="line"></div><h3>Members and last shared locations</h3>${memberCards}<div class="line"></div><h3>Family alerts</h3>${alertCards}`;
     $('familyGroup').classList.remove('hidden');
     setStatus('familyStatus',`Connected to ${data.group.group_name}. Share the invite code privately; anyone who has it can request to join.`, 'good');
