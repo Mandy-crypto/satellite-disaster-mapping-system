@@ -407,49 +407,6 @@
             box-shadow: inset 0 1px rgba(255,255,255,.08);
             backdrop-filter: blur(16px);
         }
-        .hero-globe {
-            position: relative;
-            flex: 0 0 126px;
-            width: 126px;
-            height: 126px;
-            perspective: 600px;
-            filter: drop-shadow(0 14px 28px rgba(3, 12, 35, .4));
-            animation: globe-float 6s ease-in-out infinite;
-        }
-        .hero-globe::before, .hero-globe::after, .hero-globe .globe-orbit, .hero-globe .globe-ping { content: ""; position: absolute; display: block; }
-        .hero-globe::before {
-            inset: 13px;
-            border-radius: 50%;
-            border: 1px solid rgba(171, 245, 240, .8);
-            background:
-                radial-gradient(ellipse at 38% 39%, rgba(122, 247, 214, .8) 0 8%, transparent 9%),
-                radial-gradient(ellipse at 58% 57%, rgba(79, 202, 190, .8) 0 13%, transparent 14%),
-                radial-gradient(ellipse at 64% 29%, rgba(148, 235, 211, .68) 0 5%, transparent 6%),
-                radial-gradient(circle at 33% 27%, #c1fff4 0 2%, transparent 3%),
-                radial-gradient(circle at 34% 30%, #438ca6 0%, #17436c 45%, #101d45 73%, #071225 100%);
-            box-shadow: inset -14px -5px 24px rgba(1, 9, 26, .7), inset 4px 2px 15px rgba(150, 239, 255, .45), 0 0 34px rgba(82, 235, 215, .24);
-        }
-        .hero-globe::after {
-            inset: 14px 30px;
-            border: 1px solid rgba(184, 234, 255, .38);
-            border-radius: 50%;
-            transform: rotateY(67deg);
-        }
-        .hero-globe .globe-orbit {
-            inset: 28px -3px;
-            border: 1px solid rgba(158, 184, 255, .63);
-            border-radius: 50%;
-            transform: rotate(-27deg) rotateX(65deg);
-            box-shadow: 0 0 14px rgba(130, 155, 255, .2);
-            animation: orbit-drift 18s linear infinite;
-        }
-        .hero-globe .globe-ping {
-            width: 9px; height: 9px; top: 32px; right: 28px; border-radius: 50%;
-            background: #ffe78a; box-shadow: 0 0 0 5px rgba(255, 231, 138, .14), 0 0 18px #ffe78a;
-        }
-        .hero-globe:hover::before { filter: brightness(1.18); box-shadow: inset -14px -5px 24px rgba(1, 9, 26, .7), inset 4px 2px 15px rgba(150, 239, 255, .55), 0 0 46px rgba(82, 235, 215, .42); }
-        @keyframes globe-float { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
-        @keyframes orbit-drift { to { transform: rotate(333deg) rotateX(65deg); } }
         .stats-grid { gap: 13px; margin: 18px 0 20px; perspective: 1000px; }
         .stat-card {
             position: relative;
@@ -520,80 +477,11 @@
             box-shadow: inset 0 1px rgba(255,255,255,.04);
         }
         .footer { color: #8191b1; letter-spacing: .035em; }
-        .map-heading-row { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
-        .map-heading-row h2 { margin:0; }
-        .map-command-bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-        .map-command-group { display:inline-flex; align-items:center; gap:4px; padding:4px; border:1px solid rgba(180,205,250,.18); border-radius:12px; background:rgba(5,14,33,.46); }
-        .map-tool, .map-mode { min-height:36px; padding:8px 11px; border:1px solid transparent; border-radius:9px; color:#dbe8ff; background:transparent; font-family:inherit; font-size:11px; font-weight:600; line-height:1.2; cursor:pointer; transition:all .2s ease; }
-        .map-tool:hover, .map-mode:hover { color:#fff; background:rgba(117,140,205,.2); }
-        .map-mode[aria-pressed="true"] { color:#081726; border-color:rgba(151,255,230,.7); background:linear-gradient(135deg,#74ead4,#a9f5e8); box-shadow:0 0 20px rgba(94,234,212,.16); }
-        .map-tool:focus-visible, .map-mode:focus-visible, .map-select:focus-visible { outline:2px solid var(--aqua); outline-offset:2px; }
-        .map-select { min-height:38px; max-width:150px; padding:8px 28px 8px 10px; border:1px solid rgba(180,205,250,.18); border-radius:10px; color:#e7efff; background:#131f3b; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; }
-        .map-tool-icon { width:36px; padding:7px; font-size:15px; }
-        .map-telemetry-strip { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 12px; margin:0 0 12px; border:1px solid rgba(174,198,239,.12); border-radius:12px; background:linear-gradient(90deg,rgba(7,16,36,.6),rgba(34,50,83,.38)); color:#aebdd7; font:500 10px/1.5 ui-monospace,Consolas,monospace; }
-        .map-layer-bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 11px; }
-        .map-telemetry-strip strong { color:#e7f2ff; font-weight:700; }
-        .telemetry-live { display:inline-flex; align-items:center; gap:7px; color:#9df2d6; white-space:nowrap; }
-        .telemetry-live::before { content:""; width:7px; height:7px; border-radius:50%; background:#53e3ae; box-shadow:0 0 12px #53e3ae; animation:telemetry-pulse 1.8s infinite; }
-        @keyframes telemetry-pulse { 50% { opacity:.4; box-shadow:0 0 3px #53e3ae; } }
-        .map-view { position:relative; }
-        #globeView { display:none; position:relative; height:490px; overflow:hidden; border:1px solid rgba(132,203,255,.27); border-radius:15px; background:radial-gradient(ellipse at 50% 45%,#123354 0%,#08172e 40%,#050b19 100%); box-shadow:inset 0 0 80px rgba(35,126,176,.12),0 12px 28px rgba(0,0,0,.25); }
-        #globeCanvas { position:absolute; inset:0; width:100%; height:100%; touch-action:none; }
-        .globe-overlay-top { position:absolute; z-index:2; top:14px; left:16px; right:16px; display:flex; justify-content:space-between; gap:12px; align-items:flex-start; pointer-events:none; }
-        .globe-chip { display:inline-flex; gap:7px; align-items:center; padding:8px 11px; border:1px solid rgba(157,211,255,.2); border-radius:10px; background:rgba(6,18,37,.72); color:#d7eaff; backdrop-filter:blur(12px); font:600 10px ui-monospace,Consolas,monospace; }
-        .globe-chip strong { color:#91f0dc; }
-        .globe-controls { position:absolute; z-index:3; right:14px; bottom:14px; display:flex; gap:6px; }
-        .globe-controls .map-tool { border-color:rgba(180,205,250,.17); background:rgba(8,19,39,.78); backdrop-filter:blur(12px); }
-        .globe-help { position:absolute; z-index:2; left:16px; bottom:16px; color:#8ea5c4; font:10px ui-monospace,Consolas,monospace; pointer-events:none; }
-        .globe-fallback { position:absolute; inset:0; display:none; align-items:center; justify-content:center; padding:24px; color:#c5d5ef; text-align:center; }
-        .map-layer-toggle { display:inline-flex; gap:5px; align-items:center; padding:7px 9px; border:1px solid rgba(180,205,250,.15); border-radius:9px; color:#bfcde5; background:rgba(5,14,33,.42); font-family:inherit; font-size:10px; font-weight:600; cursor:pointer; }
-        .map-layer-toggle input { accent-color:#5eead4; }
-        .map-layer-toggle:has(input:checked) { color:#dffff7; border-color:rgba(94,234,212,.3); }
-        .map-coordinates { min-width:180px; }
-        .sensor-filter, .alert-filter { margin-left:auto; padding:5px 8px; border:1px solid rgba(180,205,250,.16); border-radius:8px; color:#dbe8ff; background:#131f3b; font-family:inherit; font-size:10px; font-weight:500; }
-        .alerts-container h2, .sensor-container h2 { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
-        .telemetry-panel { margin:0 0 16px; }
-        .telemetry-panel[open] .telemetry-summary { margin-bottom:10px; }
-        .telemetry-summary { list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:10px; color:#b7c7e4; font-size:11px; }
-        .telemetry-summary::-webkit-details-marker { display:none; }
-        .telemetry-summary::after { content:"＋"; color:#8ef0dc; font-size:16px; }
-        .telemetry-panel[open] .telemetry-summary::after { content:"−"; }
-        .telemetry-detail { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
-        .telemetry-detail-card { padding:11px 13px; border:1px solid rgba(174,198,239,.12); border-radius:12px; background:rgba(7,16,36,.45); }
-        .telemetry-detail-card span { display:block; color:#91a5c7; font-size:9px; text-transform:uppercase; letter-spacing:.1em; }
-        .telemetry-detail-card strong { display:block; margin-top:5px; color:#e5f2ff; font:600 12px ui-monospace,Consolas,monospace; }
-        .map-container:fullscreen { padding:24px; background:#081126; overflow:auto; }
-        .map-container:fullscreen #map, .map-container:fullscreen #globeView { height:calc(100vh - 190px); }
-        .sensor-item[hidden], .alert-item[hidden] { display:none; }
-        @media (max-width:760px) {
-            .map-heading-row { align-items:flex-start; flex-direction:column; }
-            .map-command-bar { width:100%; }
-            .map-command-group { flex:1; }
-            .map-mode { flex:1; }
-            .map-select { flex:1; max-width:none; }
-            .map-telemetry-strip { align-items:flex-start; flex-direction:column; gap:5px; }
-            #globeView { height:360px; }
-            .globe-chip:nth-child(2) { display:none; }
-            .telemetry-detail { grid-template-columns:1fr; }
-            .map-coordinates { min-width:0; }
-        }
-        @media (max-width: 1050px) {
-            .hero-globe { flex-basis: 96px; width: 96px; height: 96px; }
-            .hero-globe::before { inset: 10px; }
-            .hero-globe::after { inset: 11px 25px; }
-            .hero-globe .globe-orbit { inset: 22px -2px; }
-            .hero-globe .globe-ping { top: 24px; right: 22px; width: 7px; height: 7px; }
-        }
         @media (max-width: 768px) {
             body { padding: 12px; }
             .header { min-height: unset; padding: 22px; border-radius: 20px; }
             .header-left { flex: 0 1 auto; }
             .header-right { justify-content: center; }
-            .hero-globe { order: 3; flex-basis: 78px; width: 78px; height: 78px; margin: 0 auto; }
-            .hero-globe::before { inset: 9px; }
-            .hero-globe::after { inset: 10px 21px; }
-            .hero-globe .globe-orbit { inset: 18px -2px; }
-            .hero-globe .globe-ping { top: 19px; right: 18px; width: 6px; height: 6px; }
             .header-left h1 { justify-content: center; }
             .header-left p { line-height: 1.6; }
             .main-content { grid-template-columns: 1fr; }
@@ -617,6 +505,216 @@
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .btn-group { justify-content: center; }
         }
+
+        /* ===== VISUAL-ONLY REDESIGN ===== */
+        :root {
+            color-scheme: dark;
+            --page: #090d14;
+            --panel: #111923;
+            --panel-raised: #151f2b;
+            --edge: rgba(182, 201, 219, .13);
+            --edge-strong: rgba(182, 201, 219, .22);
+            --paper: #f1f5f7;
+            --secondary-ink: #a7b5c4;
+            --quiet-ink: #7e8d9c;
+            --accent: #7ae0cd;
+            --accent-deep: #22594f;
+            --warm: #f0a876;
+            --red: #ff6576;
+        }
+        body {
+            padding: 30px clamp(16px, 3vw, 48px);
+            color: var(--paper);
+            background:
+                radial-gradient(ellipse at 50% -18%, rgba(79, 145, 138, .18), transparent 45%),
+                radial-gradient(ellipse at 100% 48%, rgba(94, 104, 153, .08), transparent 35%),
+                var(--page);
+            background-attachment: fixed;
+        }
+        body::before {
+            opacity: .12;
+            background-image: linear-gradient(rgba(190, 220, 220, .08) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(190, 220, 220, .08) 1px, transparent 1px);
+            background-size: 56px 56px;
+            mask-image: linear-gradient(to bottom, #000 0%, transparent 78%);
+        }
+        .dashboard { max-width: 1640px; }
+        .header {
+            min-height: 146px;
+            padding: 30px 34px;
+            border: 1px solid rgba(206, 226, 226, .15);
+            border-radius: 20px;
+            background: linear-gradient(112deg, #172630 0%, #172531 53%, #2b2929 100%);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .3), inset 0 1px rgba(255,255,255,.07);
+        }
+        .header::before {
+            opacity: .75;
+            background:
+                repeating-radial-gradient(ellipse at 83% 48%, transparent 0 26px, rgba(132, 187, 181, .09) 27px, transparent 28px 52px),
+                linear-gradient(90deg, transparent 40%, rgba(255,255,255,.025));
+            mask-image: linear-gradient(90deg, transparent 25%, #000 62%);
+        }
+        .header::after {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            right: 0;
+            top: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent), rgba(122,224,205,.05));
+        }
+        .header-left { flex: 1 1 520px; }
+        .header-left h1 { font-size: clamp(30px, 3.3vw, 44px); letter-spacing: -.05em; text-shadow: none; }
+        .header-left h1 i { color: var(--accent); filter: drop-shadow(0 0 12px rgba(122,224,205,.25)); }
+        .header-left p { max-width: 700px; margin-top: 11px; color: #b8c8d0; font-size: 14px; letter-spacing: .01em; }
+        .header-right { gap: 9px; }
+        .header-badge {
+            padding: 10px 14px;
+            border: 1px solid rgba(211,228,230,.13);
+            border-radius: 11px;
+            background: rgba(7,15,21,.38);
+            color: #e2ecee;
+            font-size: 11px;
+            letter-spacing: .025em;
+            box-shadow: inset 0 1px rgba(255,255,255,.045);
+        }
+        .live-dot { width: 8px; height: 8px; background: var(--accent); box-shadow: 0 0 14px rgba(122,224,205,.7); }
+        .stats-grid { gap: 12px; margin: 18px 0 19px; }
+        .stat-card {
+            min-height: 126px;
+            padding: 18px 14px 16px;
+            border: 1px solid var(--edge);
+            border-radius: 15px;
+            background: linear-gradient(155deg, rgba(24,35,46,.98), rgba(15,23,32,.98));
+            box-shadow: 0 10px 26px rgba(0,0,0,.16), inset 0 1px rgba(255,255,255,.035);
+            transform: none;
+            animation: none;
+        }
+        .stat-card::before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:currentColor; opacity:.72; }
+        .stat-card::after { width:140px; height:140px; right:-90px; top:-95px; background:radial-gradient(circle,rgba(255,255,255,.06),transparent 72%); }
+        .stat-card:hover { transform:translateY(-3px); border-color:var(--edge-strong); box-shadow:0 16px 32px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.05); }
+        .stat-icon { margin-bottom:8px; font-size:19px; filter:none; opacity:.9; }
+        .stat-value { font-size:clamp(24px,2vw,30px); line-height:1.2; letter-spacing:-.045em; }
+        .stat-label { max-width:135px; margin:7px auto 0; color:#95a4b2; font-size:9px; letter-spacing:.1em; line-height:1.35; }
+        .stat-critical { color:var(--red); }
+        .stat-high { color:#f0a876; }
+        .stat-medium { color:#f2cf71; }
+        .stat-low { color:#70d3a1; }
+        .stat-primary { color:#a797ef; }
+        .stat-info { color:#74c6df; }
+        .stat-success { color:#7ae0cd; }
+        .stat-card .stat-value { color:currentColor; }
+        .region-scope { margin:5px 0 11px; color:#b7c4cf; font-size:12px; font-weight:600; letter-spacing:.04em; }
+        .region-overview { gap:12px; margin-bottom:20px; }
+        .region-feed {
+            min-height:122px;
+            padding:18px 19px;
+            border:1px solid var(--edge);
+            border-radius:15px;
+            background:linear-gradient(155deg,rgba(23,34,45,.98),rgba(14,22,31,.98));
+            box-shadow:0 10px 24px rgba(0,0,0,.13),inset 0 1px rgba(255,255,255,.035);
+        }
+        .region-feed::before { content:""; display:block; width:25px; height:2px; margin-bottom:13px; background:var(--accent); opacity:.8; }
+        .region-feed h3 { color:#94a5b3; font-size:9px; letter-spacing:.14em; }
+        .region-feed strong { margin-top:9px; color:#f0f5f6; font-size:29px; font-weight:700; letter-spacing:-.045em; }
+        .region-feed small { color:#8495a5; font-size:10px; }
+        .btn-group { gap:6px; margin:18px 0; }
+        .btn {
+            min-height:42px;
+            padding:9px 11px;
+            border:1px solid rgba(188,208,220,.16);
+            border-radius:11px;
+            background:#17232e;
+            color:#dce7eb;
+            box-shadow:0 5px 15px rgba(0,0,0,.13),inset 0 1px rgba(255,255,255,.04);
+            font-size:11px;
+            white-space:nowrap;
+        }
+        .btn:hover { transform:translateY(-2px); border-color:rgba(122,224,205,.45); background:#1d3039; filter:none; box-shadow:0 10px 24px rgba(0,0,0,.22); }
+        .btn-primary { border-color:#5cbba9; background:linear-gradient(135deg,#4fbba8,#74d9c3); color:#071913; }
+        .btn-primary:hover { background:linear-gradient(135deg,#64d2bd,#8ce7d4); }
+        .btn-success { border-color:rgba(95,210,152,.35); background:linear-gradient(135deg,#245b48,#287050); color:#eafff3; }
+        .btn-warning { border-color:rgba(255,168,118,.35); background:linear-gradient(135deg,#6e3828,#9a4a2d); color:#fff1e8; }
+        .btn-danger { border-color:rgba(255,101,118,.4); background:linear-gradient(135deg,#7c2c3b,#a73b4c); color:#fff0f2; }
+        .main-content { gap:15px; grid-template-columns:minmax(0,2.05fr) minmax(300px,.95fr); }
+        .map-container, .alerts-container, .sensor-container {
+            border:1px solid var(--edge);
+            border-radius:17px;
+            background:linear-gradient(155deg,rgba(20,30,40,.98),rgba(13,21,29,.98));
+            box-shadow:0 18px 44px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.035);
+            backdrop-filter:blur(16px);
+        }
+        .map-container { padding:21px; }
+        .map-container h2, .alerts-container h2, .sensor-container h2 { color:#edf3f5; font-size:16px; letter-spacing:-.02em; }
+        .map-container h2 { margin-bottom:14px; }
+        .map-container h2 i { color:var(--accent); }
+        #map { height:540px; border:1px solid rgba(174,205,211,.2); border-radius:12px; box-shadow:0 10px 28px rgba(0,0,0,.28); }
+        .legend { gap:16px; margin-top:12px; padding:12px 14px; border:1px solid rgba(180,203,213,.1); border-radius:11px; background:rgba(7,13,19,.38); }
+        .legend-item { color:#b6c1c9; font-size:10px; letter-spacing:.035em; }
+        .legend-color { width:12px; height:12px; }
+        .right-panel { gap:14px; }
+        .alerts-container, .sensor-container { padding:19px; }
+        .alerts-container h2, .sensor-container h2 { margin-bottom:12px; }
+        .alerts-container h2 i { color:var(--red); }
+        .sensor-container h2 i { color:#74c6df; }
+        .alert-count { min-width:24px; padding:3px 8px; background:#b84452; box-shadow:none; font-size:10px; text-align:center; }
+        .alerts-scroll, .sensor-scroll { scrollbar-color:#425565 transparent; }
+        .alert-item, .sensor-item { border:1px solid rgba(180,203,213,.1); border-radius:10px; }
+        .alert-item { padding:13px 14px; border-left-width:3px; }
+        .alert-item.critical { background:rgba(152,45,62,.14); }
+        .alert-item.high { background:rgba(164,86,48,.14); }
+        .alert-item.medium { background:rgba(155,132,55,.12); }
+        .alert-item.low { background:rgba(52,122,88,.13); }
+        .alert-title { font-size:11px; letter-spacing:.08em; }
+        .alert-message { color:#afbdc6; font-size:11px; line-height:1.55; }
+        .alert-time { color:#758793; font-size:10px; }
+        .sensor-item { padding:10px 11px; background:rgba(255,255,255,.025); }
+        .sensor-item .name { color:#e3ecef; }
+        .sensor-item .name small { color:#94a4af !important; line-height:1.6; }
+        .risk-badge { letter-spacing:.04em; }
+        .result-box { margin-top:14px; padding:13px 16px; border:1px solid var(--edge); border-radius:12px; background:rgba(12,19,26,.82); color:#afc0c8; box-shadow:inset 0 1px rgba(255,255,255,.025); }
+        .footer { margin-top:18px; color:#758592; font-size:11px; letter-spacing:.04em; }
+        @media (max-width:1200px) {
+            .stats-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+            .main-content { grid-template-columns:1fr; }
+            .right-panel { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; }
+        }
+        @media (max-width:760px) {
+            body { padding:16px 12px; }
+            .header { min-height:0; padding:23px 20px; border-radius:16px; text-align:left; }
+            .header-left { flex:1 1 100%; }
+            .header-left h1 { justify-content:flex-start; font-size:29px; }
+            .header-left p { font-size:12px; }
+            .header-right { justify-content:flex-start; }
+            .header-badge { padding:8px 10px; font-size:10px; }
+            .stats-grid { gap:8px; margin:12px 0 16px; }
+            .stat-card { min-height:108px; padding:13px 8px; border-radius:12px; }
+            .stat-icon { margin-bottom:5px; font-size:16px; }
+            .stat-value { font-size:23px; }
+            .stat-label { font-size:8px; }
+            .region-overview { gap:8px; }
+            .region-feed { min-height:112px; padding:14px; border-radius:12px; }
+            .region-feed strong { font-size:24px; }
+            .btn-group { gap:7px; }
+            .btn { min-height:40px; padding:9px 11px; font-size:11px; }
+            .map-container { padding:14px; }
+            .map-container, .alerts-container, .sensor-container { border-radius:14px; }
+            #map { height:390px; }
+            .right-panel { grid-template-columns:1fr; }
+            .legend { gap:10px; }
+        }
+        @media (max-width:420px) {
+            .header-left h1 { font-size:25px; }
+            .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+            .header-right { gap:6px; }
+            .header-badge { padding:7px 8px; }
+            .region-overview { grid-template-columns:1fr 1fr; }
+            #map { height:330px; }
+        }
+        @media (prefers-reduced-motion:reduce) {
+            *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; }
+        }
     </style>
 </head>
 <body>
@@ -629,7 +727,6 @@
             <h1><i class="fas fa-satellite-dish"></i> Disaster Risk Dashboard</h1>
             <p>Satellite-Assisted Mapping System · Public feeds, imported imagery, and sensor readings · SIH 2026</p>
         </div>
-        <div class="hero-globe" aria-hidden="true"><span class="globe-orbit"></span><span class="globe-ping"></span></div>
         <div class="header-right">
             <div class="header-badge"><span class="live-dot"></span> REGION VIEW</div>
             <div class="header-badge"><i class="fas fa-clock"></i> <span id="currentTime"></span></div>
@@ -698,15 +795,6 @@
     </div>
     <div id="assessmentNotice" role="status" style="display:none;margin:0 0 18px;padding:12px 16px;border:1px solid #7180b9;border-radius:12px;background:#20264a;color:#dfe5ff;line-height:1.5"></div>
 
-    <details class="telemetry-panel">
-        <summary class="telemetry-summary"><span><i class="fas fa-satellite"></i> Data provenance &amp; freshness</span><span>Live feeds are shown only when the source responds</span></summary>
-        <div class="telemetry-detail" aria-label="Dashboard source notes">
-            <div class="telemetry-detail-card"><span>Regional weather</span><strong>Open-Meteo · model data</strong></div>
-            <div class="telemetry-detail-card"><span>River gauges</span><strong>CWC / NWIC · station time shown</strong></div>
-            <div class="telemetry-detail-card"><span>Earthquakes</span><strong>USGS · event feed</strong></div>
-        </div>
-    </details>
-
     <!-- ===== BUTTONS ===== -->
     <div class="btn-group">
         <button class="btn btn-primary" onclick="loadAll()"><i class="fas fa-sync"></i> Load All Data</button>
@@ -727,48 +815,8 @@
         
         <!-- MAP -->
         <div class="map-container">
-            <div class="map-heading-row">
-                <h2><i class="fas fa-map"></i> Interactive Risk Map</h2>
-                <div class="map-command-bar" aria-label="Map controls">
-                    <div class="map-command-group" role="group" aria-label="Map view">
-                        <button class="map-mode" id="mapMode2d" type="button" aria-pressed="true" onclick="setMapMode('2d')"><i class="fas fa-map"></i> 2D MAP</button>
-                        <button class="map-mode" id="mapMode3d" type="button" aria-pressed="false" onclick="setMapMode('3d')"><i class="fas fa-globe-americas"></i> 3D GLOBE</button>
-                    </div>
-                    <select class="map-select" id="mapBasemap" aria-label="Basemap style" onchange="changeBasemap(this.value)">
-                        <option value="street">Street map</option>
-                        <option value="imagery">Satellite imagery</option>
-                        <option value="dark">Dark map</option>
-                    </select>
-                    <button class="map-tool map-tool-icon" type="button" title="Fit the selected Jabalpur region" aria-label="Fit region" onclick="fitRegion()"><i class="fas fa-crosshairs"></i></button>
-                    <button class="map-tool map-tool-icon" type="button" title="Fullscreen map" aria-label="Fullscreen map" onclick="toggleMapFullscreen()"><i class="fas fa-expand"></i></button>
-                </div>
-            </div>
-            <div class="map-telemetry-strip">
-                <span><strong id="mapRegionLabel">JABALPUR REGION</strong> · <span id="mapCoordinates" class="map-coordinates">23.1810° N, 79.9510° E</span></span>
-                <span class="telemetry-live" id="mapDataState">Waiting for regional feeds</span>
-            </div>
-            <div class="map-layer-bar" role="group" aria-label="Map overlays">
-                <label class="map-layer-toggle"><input type="checkbox" id="showRegionLayer" checked onchange="toggleMapLayer('region',this.checked)"> Region radius</label>
-                <label class="map-layer-toggle"><input type="checkbox" id="showSensorLayer" checked onchange="toggleMapLayer('sensors',this.checked)"> Sensor readings</label>
-                <label class="map-layer-toggle"><input type="checkbox" id="showRiverLayer" checked onchange="toggleMapLayer('rivers',this.checked)"> River gauges</label>
-                <span class="telemetry-live" id="mapObservationSummary" style="margin-left:auto">0 plotted observations</span>
-            </div>
-            <div class="map-view">
-                <div id="map" role="application" aria-label="Interactive regional risk map"></div>
-                <div id="globeView" aria-label="Interactive 3D globe view">
-                    <canvas id="globeCanvas" tabindex="0" aria-label="Interactive wireframe globe with Jabalpur and available regional observations. Use arrow keys to rotate and plus or minus to zoom."></canvas>
-                    <div class="globe-overlay-top">
-                        <span class="globe-chip"><i class="fas fa-location-dot"></i> REGION CENTER <strong id="globeRegionCoordinates">23.1810°N · 79.9510°E</strong></span>
-                        <span class="globe-chip"><i class="fas fa-circle-nodes"></i> OBSERVATIONS <strong id="globeObservationCount">0</strong> · GRID VIEW ONLY</span>
-                    </div>
-                    <div class="globe-help">DRAG TO ROTATE · SCROLL TO ZOOM · VIOLET: SENSOR · CYAN: GAUGE · CORAL: USGS</div>
-                    <div class="globe-controls">
-                        <button class="map-tool map-tool-icon" id="globeRotateButton" type="button" aria-label="Pause globe rotation" title="Pause globe rotation" onclick="toggleGlobeRotation()"><i class="fas fa-pause"></i></button>
-                        <button class="map-tool map-tool-icon" type="button" aria-label="Reset globe view" title="Reset globe view" onclick="resetGlobeView()"><i class="fas fa-rotate-left"></i></button>
-                    </div>
-                    <div class="globe-fallback" id="globeFallback">3D view is unavailable in this browser. Use the 2D map view for full map interaction.</div>
-                </div>
-            </div>
+            <h2><i class="fas fa-map"></i> Interactive Risk Map</h2>
+            <div id="map"></div>
             <div class="legend">
                 <div class="legend-item"><div class="legend-color" style="background:#ff4757;"></div> CRITICAL</div>
                 <div class="legend-item"><div class="legend-color" style="background:#ff6b35;"></div> HIGH</div>
@@ -787,7 +835,7 @@
             
             <!-- Alerts -->
             <div class="alerts-container">
-                <h2><i class="fas fa-bell"></i> Active Alerts <span class="alert-count" id="alertCount">0</span><input class="alert-filter" id="alertFilter" type="search" placeholder="Filter alerts" aria-label="Filter alerts" oninput="filterDashboardItems('alert-item','alertFilter')"></h2>
+                <h2><i class="fas fa-bell"></i> Active Alerts <span class="alert-count" id="alertCount">0</span></h2>
                 <div class="alerts-scroll" id="alertsList">
                     <div style="color:rgba(255,255,255,0.3);font-size:12px;text-align:center;padding:20px;">
                         No active alerts
@@ -797,7 +845,7 @@
 
             <!-- Sensors -->
             <div class="sensor-container">
-                <h2><i class="fas fa-microchip"></i> Sensor Data <span class="alert-count" id="sensorCount">0</span><input class="sensor-filter" id="sensorFilter" type="search" placeholder="Filter" aria-label="Filter sensors" oninput="filterDashboardItems('sensor-item','sensorFilter')"></h2>
+                <h2><i class="fas fa-microchip"></i> Sensor Data <span class="alert-count" id="sensorCount">0</span></h2>
                 <div class="sensor-scroll" id="sensorList">
                     <div style="color:rgba(255,255,255,0.3);font-size:12px;text-align:center;padding:20px;">
                         No sensors connected
@@ -842,422 +890,28 @@ let map;
 let sensorMarkers = [];
 let riverMarkers = [];
 let regionBoundary = null;
-let regionLayer;
-let sensorLayer;
-let riverLayer;
-let activeBasemap;
-const basemapLayers = {};
 const PROJECT_REGION = { name: 'Jabalpur, Madhya Pradesh', latitude: 23.181, longitude: 79.951, radius_km: 250 };
-let globeObservations = [];
-let globeRuntime = null;
-let globeRotationEnabled = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-let currentMapMode = '2d';
 
 function initMap() {
     map = L.map('map').setView([PROJECT_REGION.latitude, PROJECT_REGION.longitude], 7);
-    // Use provider-hosted public basemaps rather than the volunteer OSM tile endpoint.
-    basemapLayers.street = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+    // Use Esri's street basemap instead of the OSM volunteer tile server,
+    // which blocks applications that don't meet its tile usage policy.
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 19,
         attribution: 'Sources: <a href="https://www.esri.com/">Esri</a>, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China, Esri Korea, NGCC, <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>, and the GIS User Community'
-    });
-    basemapLayers.imagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19, attribution: 'Imagery © Esri and its imagery providers'
-    });
-    basemapLayers.dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19, subdomains: 'abcd', attribution: '© OpenStreetMap contributors · © CARTO'
-    });
-    activeBasemap = basemapLayers.street;
-    activeBasemap.addTo(map);
-    regionLayer = L.layerGroup().addTo(map);
-    sensorLayer = L.layerGroup().addTo(map);
-    riverLayer = L.layerGroup().addTo(map);
-    map.on('mousemove', event => updateMapCoordinates(event.latlng));
-    map.on('click', event => {
-        updateMapCoordinates(event.latlng);
-        const coords = `${event.latlng.lat.toFixed(5)}° N, ${event.latlng.lng.toFixed(5)}° E`;
-        document.getElementById('result').textContent = `Map position selected: ${coords}. This is a map coordinate, not a risk assessment.`;
-    });
+    }).addTo(map);
 }
 initMap();
-
-function updateMapCoordinates(point) {
-    const lat = Number(point.lat);
-    const lon = Number(point.lng);
-    const label = `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(4)}° ${lon >= 0 ? 'E' : 'W'}`;
-    document.getElementById('mapCoordinates').textContent = label;
-}
-
-function changeBasemap(name) {
-    const next = basemapLayers[name];
-    if (!next || next === activeBasemap) return;
-    if (activeBasemap && map.hasLayer(activeBasemap)) map.removeLayer(activeBasemap);
-    activeBasemap = next;
-    activeBasemap.addTo(map);
-    try { localStorage.setItem('disasterDashboardBasemap', name); } catch (_) {}
-    document.getElementById('result').textContent = `Basemap changed to ${name}. Observation and risk layers are unchanged.`;
-}
-
-function toggleMapLayer(name, enabled) {
-    const layers = { region: regionLayer, sensors: sensorLayer, rivers: riverLayer };
-    const layer = layers[name];
-    if (!layer) return;
-    if (enabled && !map.hasLayer(layer)) layer.addTo(map);
-    if (!enabled && map.hasLayer(layer)) map.removeLayer(layer);
-    try { localStorage.setItem(`disasterDashboardLayer_${name}`, enabled ? '1' : '0'); } catch (_) {}
-    updateObservationSummary();
-}
-
-function fitRegion() {
-    if (regionBoundary) map.fitBounds(regionBoundary.getBounds(), { padding: [24, 24], maxZoom: 10 });
-    else map.setView([PROJECT_REGION.latitude, PROJECT_REGION.longitude], 7);
-    if (currentMapMode === '3d' && globeRuntime) resetGlobeView();
-}
-
-async function toggleMapFullscreen() {
-    const panel = document.querySelector('.map-container');
-    try {
-        if (!document.fullscreenElement) await panel.requestFullscreen();
-        else await document.exitFullscreen();
-        window.setTimeout(() => map.invalidateSize(), 120);
-    } catch (error) {
-        document.getElementById('result').textContent = `Fullscreen is unavailable: ${error.message}`;
-    }
-}
-
-document.addEventListener('fullscreenchange', () => {
-    window.setTimeout(() => map.invalidateSize(), 120);
-    const icon = document.querySelector('[aria-label="Fullscreen map"] i');
-    if (icon) icon.className = document.fullscreenElement ? 'fas fa-compress' : 'fas fa-expand';
-});
 
 function updateProjectRegion(region) {
     Object.assign(PROJECT_REGION, region || {});
     const radius = Number(PROJECT_REGION.radius_km) || 250;
     document.getElementById('regionScope').textContent = `${PROJECT_REGION.name} · public readings within ${radius} km of the region center`;
-    if (regionBoundary) regionLayer.removeLayer(regionBoundary);
+    if (regionBoundary) map.removeLayer(regionBoundary);
     regionBoundary = L.circle([PROJECT_REGION.latitude, PROJECT_REGION.longitude], {
         radius: radius * 1000, color: '#9d8aff', weight: 2, dashArray: '7 7', fillColor: '#7c5cfc', fillOpacity: 0.04
-    }).addTo(regionLayer);
-    document.getElementById('mapRegionLabel').textContent = PROJECT_REGION.name.toUpperCase();
-    updateMapCoordinates({ lat: PROJECT_REGION.latitude, lng: PROJECT_REGION.longitude });
-    document.getElementById('globeRegionCoordinates').textContent = `${Math.abs(PROJECT_REGION.latitude).toFixed(4)}°${PROJECT_REGION.latitude >= 0 ? 'N' : 'S'} · ${Math.abs(PROJECT_REGION.longitude).toFixed(4)}°${PROJECT_REGION.longitude >= 0 ? 'E' : 'W'}`;
+    }).addTo(map);
     map.fitBounds(regionBoundary.getBounds(), { padding: [15, 15] });
-    updateObservationSummary();
-}
-
-function updateObservationSummary() {
-    const visibleSensors = map.hasLayer(sensorLayer) ? sensorMarkers.length : 0;
-    const visibleRivers = map.hasLayer(riverLayer) ? riverMarkers.length : 0;
-    const total = visibleSensors + visibleRivers;
-    document.getElementById('mapObservationSummary').textContent = `${total} plotted observation${total === 1 ? '' : 's'}`;
-    document.getElementById('globeObservationCount').textContent = String(globeObservations.length);
-    document.getElementById('mapDataState').textContent = total ? `${total} observations returned by connected feeds` : 'No sensor or gauge observations plotted';
-}
-
-function filterDashboardItems(selector, inputId) {
-    const query = document.getElementById(inputId).value.trim().toLowerCase();
-    document.querySelectorAll(`#${inputId === 'sensorFilter' ? 'sensorList' : 'alertsList'} .${selector}`).forEach(item => {
-        item.hidden = query !== '' && !item.textContent.toLowerCase().includes(query);
-    });
-}
-
-function ensureThreeJs() {
-    if (window.THREE) return Promise.resolve(window.THREE);
-    if (window.threeLoadPromise) return window.threeLoadPromise;
-    window.threeLoadPromise = new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-        script.async = true;
-        script.onload = () => window.THREE ? resolve(window.THREE) : reject(new Error('Three.js loaded without its renderer'));
-        script.onerror = () => reject(new Error('Three.js could not be loaded'));
-        document.head.appendChild(script);
-    });
-    return window.threeLoadPromise;
-}
-
-async function setMapMode(mode) {
-    currentMapMode = mode === '3d' ? '3d' : '2d';
-    const isGlobe = currentMapMode === '3d';
-    document.getElementById('map').style.display = isGlobe ? 'none' : 'block';
-    document.getElementById('globeView').style.display = isGlobe ? 'block' : 'none';
-    document.getElementById('mapMode2d').setAttribute('aria-pressed', String(!isGlobe));
-    document.getElementById('mapMode3d').setAttribute('aria-pressed', String(isGlobe));
-    if (!isGlobe) {
-        if (globeRuntime) globeRuntime.renderer.setAnimationLoop(null);
-        window.setTimeout(() => map.invalidateSize(), 80);
-        return;
-    }
-    try {
-        await initializeGlobe();
-        if (currentMapMode !== '3d') return;
-        document.getElementById('globeFallback').style.display = 'none';
-        if (globeRuntime) {
-            globeRuntime.renderer.setAnimationLoop(renderGlobeFrame);
-            globeRuntime.renderer.setSize(document.getElementById('globeView').clientWidth, document.getElementById('globeView').clientHeight, false);
-        }
-    } catch (error) {
-        document.getElementById('globeFallback').style.display = 'flex';
-        currentMapMode = '2d';
-        document.getElementById('map').style.display = 'block';
-        document.getElementById('globeView').style.display = 'none';
-        document.getElementById('mapMode2d').setAttribute('aria-pressed', 'true');
-        document.getElementById('mapMode3d').setAttribute('aria-pressed', 'false');
-        document.getElementById('result').textContent = `3D view unavailable: ${error.message}. The 2D map remains available.`;
-    }
-}
-
-function globePoint(THREE, latitude, longitude, radius = 2.04) {
-    const lat = THREE.MathUtils.degToRad(Number(latitude));
-    const lon = THREE.MathUtils.degToRad(Number(longitude));
-    return new THREE.Vector3(radius * Math.cos(lat) * Math.sin(lon), radius * Math.sin(lat), radius * Math.cos(lat) * Math.cos(lon));
-}
-
-function createGlobeLine(THREE, points, color, opacity, parent, loop = false) {
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const material = new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false });
-    const line = loop ? new THREE.LineLoop(geometry, material) : new THREE.Line(geometry, material);
-    parent.add(line);
-    return line;
-}
-
-async function initializeGlobe() {
-    if (globeRuntime) return globeRuntime;
-    const THREE = await ensureThreeJs();
-    const canvas = document.getElementById('globeCanvas');
-    const frame = document.getElementById('globeView');
-    const width = Math.max(frame.clientWidth, 320);
-    const height = Math.max(frame.clientHeight, 260);
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.7));
-    renderer.setSize(width, height, false);
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 80);
-    camera.position.set(0, 0.1, 6.1);
-    const ambient = new THREE.AmbientLight(0x93c8ff, 1.5);
-    scene.add(ambient);
-    const keyLight = new THREE.PointLight(0x7df8ed, 3.2, 15);
-    keyLight.position.set(-3, 3, 5);
-    scene.add(keyLight);
-    const rimLight = new THREE.PointLight(0x478aff, 2.3, 14);
-    rimLight.position.set(3, -2, -4);
-    scene.add(rimLight);
-
-    const root = new THREE.Group();
-    root.rotation.y = -THREE.MathUtils.degToRad(PROJECT_REGION.longitude);
-    scene.add(root);
-    const sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(2, 80, 64),
-        new THREE.MeshPhongMaterial({ color: 0x0b2845, emissive: 0x071421, emissiveIntensity: 0.8, shininess: 36, specular: 0x5ccbdc })
-    );
-    root.add(sphere);
-    const wireShell = new THREE.Mesh(new THREE.SphereGeometry(2.012, 36, 24), new THREE.MeshBasicMaterial({ color: 0x2a7399, wireframe: true, transparent: true, opacity: 0.17 }));
-    root.add(wireShell);
-
-    // Geographic parallels and meridians are a spatial reference grid, not a terrain or hazard model.
-    for (let latitude = -75; latitude <= 75; latitude += 15) {
-        const points = [];
-        for (let step = 0; step < 96; step++) points.push(globePoint(THREE, latitude, step * 360 / 96, 2.018));
-        createGlobeLine(THREE, points, latitude === 0 ? 0x56c9d5 : 0x3987ac, latitude === 0 ? 0.34 : 0.2, root, true);
-    }
-    for (let longitude = 0; longitude < 180; longitude += 15) {
-        const points = [];
-        for (let step = 0; step <= 96; step++) points.push(globePoint(THREE, -90 + step * 180 / 96, longitude, 2.019));
-        createGlobeLine(THREE, points, 0x3987ac, 0.18, root);
-    }
-
-    const atmosphere = new THREE.Mesh(new THREE.SphereGeometry(2.09, 64, 48), new THREE.MeshBasicMaterial({ color: 0x1da4ed, transparent: true, opacity: 0.055, side: THREE.BackSide }));
-    root.add(atmosphere);
-    const focus = new THREE.Group();
-    const jabalpur = globePoint(THREE, PROJECT_REGION.latitude, PROJECT_REGION.longitude, 2.045);
-    focus.position.copy(jabalpur);
-    focus.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), jabalpur.clone().normalize());
-    const focusRing = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.006, 8, 48), new THREE.MeshBasicMaterial({ color: 0xffd478, transparent: true, opacity: 0.95 }));
-    focusRing.rotation.x = Math.PI / 2;
-    focus.add(focusRing);
-    const focusDot = new THREE.Mesh(new THREE.SphereGeometry(0.026, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffdf91 }));
-    focusDot.userData.observation = { name: PROJECT_REGION.name, type: 'Region center', description: 'Reference point only; no risk level is inferred by the 3D globe.' };
-    focus.add(focusDot);
-    root.add(focus);
-
-    const markers = new THREE.Group();
-    root.add(markers);
-    const starsGeometry = new THREE.BufferGeometry();
-    const starPositions = new Float32Array(780 * 3);
-    for (let i = 0; i < 780; i++) {
-        const radius = 7 + Math.random() * 19;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(2 * Math.random() - 1);
-        starPositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-        starPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-        starPositions[i * 3 + 2] = radius * Math.cos(phi);
-    }
-    starsGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    const stars = new THREE.Points(starsGeometry, new THREE.PointsMaterial({ color: 0x99c8e9, size: 0.018, transparent: true, opacity: 0.65 }));
-    scene.add(stars);
-
-    globeRuntime = { THREE, scene, camera, renderer, root, markers, focus, stars, markerMeshes: [], pointer: new THREE.Vector2(), raycaster: new THREE.Raycaster(), dragging: false, previousPointer: null };
-    attachGlobeControls(canvas);
-    updateGlobeObservations();
-    return globeRuntime;
-}
-
-function attachGlobeControls(canvas) {
-    const runtime = globeRuntime;
-    canvas.addEventListener('pointerdown', event => {
-        runtime.dragging = true;
-        runtime.pointerMoved = false;
-        runtime.previousPointer = { x: event.clientX, y: event.clientY };
-        canvas.setPointerCapture(event.pointerId);
-    });
-    canvas.addEventListener('pointermove', event => {
-        if (runtime.dragging && runtime.previousPointer) {
-            const dx = event.clientX - runtime.previousPointer.x;
-            const dy = event.clientY - runtime.previousPointer.y;
-            if (Math.abs(dx) + Math.abs(dy) > 2) runtime.pointerMoved = true;
-            runtime.root.rotation.y += dx * 0.006;
-            runtime.root.rotation.x = Math.max(-0.8, Math.min(0.8, runtime.root.rotation.x + dy * 0.004));
-            runtime.previousPointer = { x: event.clientX, y: event.clientY };
-            return;
-        }
-        const bounds = canvas.getBoundingClientRect();
-        runtime.pointer.set(((event.clientX - bounds.left) / bounds.width) * 2 - 1, -((event.clientY - bounds.top) / bounds.height) * 2 + 1);
-        runtime.raycaster.setFromCamera(runtime.pointer, runtime.camera);
-        const hits = runtime.raycaster.intersectObjects([...runtime.markerMeshes, runtime.focus.children[1]], true);
-        canvas.style.cursor = hits.length ? 'pointer' : 'grab';
-    });
-    const release = event => {
-        runtime.dragging = false;
-        runtime.previousPointer = null;
-        if (event && canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-    };
-    canvas.addEventListener('pointerup', event => {
-        if (!runtime.pointerMoved) {
-            const bounds = canvas.getBoundingClientRect();
-            runtime.pointer.set(((event.clientX - bounds.left) / bounds.width) * 2 - 1, -((event.clientY - bounds.top) / bounds.height) * 2 + 1);
-            runtime.raycaster.setFromCamera(runtime.pointer, runtime.camera);
-            const hits = runtime.raycaster.intersectObjects([...runtime.markerMeshes, runtime.focus.children[1]], true);
-            const hit = hits.find(item => item.object.userData.observation);
-            if (hit) {
-                const observation = hit.object.userData.observation;
-                document.getElementById('result').textContent = `${observation.name} · ${observation.type}\n${observation.description}\n${observation.coordinates || ''}`;
-            }
-        }
-        release(event);
-    });
-    canvas.addEventListener('pointercancel', release);
-    canvas.addEventListener('wheel', event => {
-        event.preventDefault();
-        runtime.camera.position.z = Math.max(3.6, Math.min(9.5, runtime.camera.position.z + event.deltaY * 0.003));
-    }, { passive: false });
-    canvas.addEventListener('keydown', event => {
-        const amount = event.shiftKey ? 0.24 : 0.12;
-        if (event.key === 'ArrowLeft') runtime.root.rotation.y -= amount;
-        else if (event.key === 'ArrowRight') runtime.root.rotation.y += amount;
-        else if (event.key === 'ArrowUp') runtime.root.rotation.x = Math.max(-0.8, runtime.root.rotation.x - amount);
-        else if (event.key === 'ArrowDown') runtime.root.rotation.x = Math.min(0.8, runtime.root.rotation.x + amount);
-        else if (event.key === '+' || event.key === '=') runtime.camera.position.z = Math.max(3.6, runtime.camera.position.z - 0.3);
-        else if (event.key === '-' || event.key === '_') runtime.camera.position.z = Math.min(9.5, runtime.camera.position.z + 0.3);
-        else return;
-        event.preventDefault();
-    });
-    canvas.addEventListener('dblclick', resetGlobeView);
-    window.addEventListener('resize', resizeGlobe);
-}
-
-function renderGlobeFrame() {
-    if (!globeRuntime || currentMapMode !== '3d') return;
-    if (globeRotationEnabled && !globeRuntime.dragging) globeRuntime.root.rotation.y += 0.0008;
-    const pulse = 1 + Math.sin(performance.now() * 0.003) * 0.11;
-    globeRuntime.focus.children[1].scale.setScalar(pulse);
-    globeRuntime.renderer.render(globeRuntime.scene, globeRuntime.camera);
-}
-
-function resizeGlobe() {
-    if (!globeRuntime) return;
-    const frame = document.getElementById('globeView');
-    const width = frame.clientWidth;
-    const height = frame.clientHeight;
-    if (!width || !height) return;
-    globeRuntime.camera.aspect = width / height;
-    globeRuntime.camera.updateProjectionMatrix();
-    globeRuntime.renderer.setSize(width, height, false);
-}
-
-function setGlobeObservations(type, observations) {
-    globeObservations = globeObservations.filter(item => item.type !== type);
-    (observations || []).forEach(item => {
-        const latitude = Number(item.latitude ?? item.location?.lat ?? item.coordinates?.[1]);
-        const longitude = Number(item.longitude ?? item.location?.lon ?? item.longitude_deg ?? item.coordinates?.[0]);
-        if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || Math.abs(latitude) > 90 || Math.abs(longitude) > 180) return;
-        const name = item.sensor_id || item.station_name || item.place || item.name || `${type} observation`;
-        const description = item.source || item.description || (item.magnitude != null ? `USGS earthquake · magnitude ${item.magnitude}` : '') || item.risk_level || item.river || 'Location returned by the connected data source.';
-        globeObservations.push({ type, name, description, latitude, longitude, timestamp: item.timestamp || item.time || '' });
-    });
-    document.getElementById('globeObservationCount').textContent = String(globeObservations.length);
-    updateObservationSummary();
-    if (globeRuntime) drawGlobeObservations();
-}
-
-function updateGlobeObservations() {
-    if (!globeRuntime) return;
-    drawGlobeObservations();
-}
-
-function drawGlobeObservations() {
-    const runtime = globeRuntime;
-    if (!runtime) return;
-    while (runtime.markers.children.length) {
-        const child = runtime.markers.children[0];
-        runtime.markers.remove(child);
-        child.traverse(object => {
-            object.geometry?.dispose();
-            if (Array.isArray(object.material)) object.material.forEach(material => material.dispose());
-            else object.material?.dispose();
-        });
-    }
-    runtime.markerMeshes = [];
-    const palette = { sensor: 0xa987ff, gauge: 0x38d6f2, earthquake: 0xff8b5c };
-    globeObservations.forEach(observation => {
-        const color = palette[observation.type] || 0x79e5bd;
-        const surface = globePoint(runtime.THREE, observation.latitude, observation.longitude, 2.045);
-        const marker = new runtime.THREE.Group();
-        marker.position.copy(surface);
-        marker.quaternion.setFromUnitVectors(new runtime.THREE.Vector3(0, 1, 0), surface.clone().normalize());
-        const pin = new runtime.THREE.Mesh(new runtime.THREE.SphereGeometry(0.027, 12, 10), new runtime.THREE.MeshBasicMaterial({ color }));
-        pin.position.y = 0.015;
-        pin.userData.observation = { ...observation, coordinates: `${observation.latitude.toFixed(4)}°, ${observation.longitude.toFixed(4)}°${observation.timestamp ? ` · ${observation.timestamp}` : ''}` };
-        marker.add(pin);
-        const stem = new runtime.THREE.Mesh(new runtime.THREE.CylinderGeometry(0.0035, 0.0035, 0.032, 6), new runtime.THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.72 }));
-        stem.position.y = -0.006;
-        marker.add(stem);
-        const glow = new runtime.THREE.Mesh(new runtime.THREE.SphereGeometry(0.065, 10, 8), new runtime.THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.12, depthWrite: false }));
-        marker.add(glow);
-        runtime.markers.add(marker);
-        runtime.markerMeshes.push(pin);
-    });
-}
-
-function toggleGlobeRotation() {
-    globeRotationEnabled = !globeRotationEnabled;
-    syncGlobeRotationButton();
-}
-
-function syncGlobeRotationButton() {
-    const button = document.getElementById('globeRotateButton');
-    button.setAttribute('aria-label', globeRotationEnabled ? 'Pause globe rotation' : 'Resume globe rotation');
-    button.title = globeRotationEnabled ? 'Pause globe rotation' : 'Resume globe rotation';
-    button.innerHTML = `<i class="fas fa-${globeRotationEnabled ? 'pause' : 'play'}"></i>`;
-}
-
-function resetGlobeView() {
-    if (!globeRuntime) return;
-    const THREE = globeRuntime.THREE;
-    globeRuntime.root.rotation.set(0, -THREE.MathUtils.degToRad(PROJECT_REGION.longitude), 0);
-    globeRuntime.camera.position.set(0, 0.1, 6.1);
 }
 
 // =============================================
@@ -1320,7 +974,6 @@ async function getSensors(options = {}) {
         const res = await fetch(`/api/live/sensors?lat=${PROJECT_REGION.latitude}&lon=${PROJECT_REGION.longitude}&radius_km=${PROJECT_REGION.radius_km}`);
         if (!res.ok) throw new Error(`API returned ${res.status}`);
         const data = await res.json();
-        setGlobeObservations('sensor', data.readings || []);
         
         if (data.status === 'success' && data.sensors) {
             const container = document.getElementById('sensorList');
@@ -1370,9 +1023,9 @@ async function getSensors(options = {}) {
 // UPDATE MAP
 // =============================================
 function updateMapWithSensors(readings) {
-    sensorLayer.clearLayers();
+    sensorMarkers.forEach(m => map.removeLayer(m));
     sensorMarkers = [];
-    if (!readings || readings.length === 0) { updateObservationSummary(); return; }
+    if (!readings || readings.length === 0) return;
     const colors = {CRITICAL:'#ff4757', HIGH:'#ff6b35', MEDIUM:'#ffd93d', LOW:'#7c5cfc'};
     readings.forEach(reading => {
         if (!Number.isFinite(Number(reading.latitude)) || !Number.isFinite(Number(reading.longitude))) return;
@@ -1385,7 +1038,7 @@ function updateMapWithSensors(readings) {
             weight: 2,
             opacity: 1,
             fillOpacity: 0.9
-        }).addTo(sensorLayer);
+        }).addTo(map);
         
         marker.bindPopup(`
             <div style="font-family:Segoe UI;font-size:13px;">
@@ -1399,7 +1052,6 @@ function updateMapWithSensors(readings) {
         
         sensorMarkers.push(marker);
     });
-    updateObservationSummary();
 }
 
 async function getRiverLevels(options = {}) {
@@ -1408,16 +1060,15 @@ async function getRiverLevels(options = {}) {
         const res = await fetch('/api/live/river-levels?lat=23.181&lon=79.951&radius_km=250');
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || 'River data unavailable');
-        riverLayer.clearLayers();
+        riverMarkers.forEach(marker => map.removeLayer(marker));
         riverMarkers = [];
         (data.stations || []).forEach(station => {
             const marker = L.circleMarker([station.latitude, station.longitude], {
                 radius: 8, fillColor: station.stale ? '#8b94a8' : '#00d4ff', color: 'white', weight: 2, fillOpacity: 0.9
-            }).addTo(riverLayer);
+            }).addTo(map);
             marker.bindPopup(`<b>${station.station_name}</b><br>${station.river} river, ${station.district}<br>Gauge elevation: ${station.gauge_level_m} m<br>Observed: ${station.timestamp || 'unknown'}<br>${station.stale ? '<b>STALE: older than 24 hours</b><br>' : ''}${station.source}<br><small>Not a flood-depth or warning value</small>`);
             riverMarkers.push(marker);
         });
-        setGlobeObservations('gauge', data.stations || []);
         const latest = (data.stations || []).slice(0, 6).map(s => `${s.station_name}: ${s.gauge_level_m} m · ${s.timestamp || 'time unavailable'}${s.stale ? ' · STALE (>24 h)' : ''}`).join('\n');
         const panel = `CWC/NWIC ${data.basin} telemetry: ${data.count} nearby station(s)\n${latest || 'No stations were returned for this area.'}\n\n${data.note || ''}`;
         if (!options.quiet) document.getElementById('result').textContent = panel;
@@ -1505,7 +1156,6 @@ async function getEarthquakes(options = {}) {
         const data = await res.json();
         
         if (data.status === 'success' && data.earthquakes) {
-            setGlobeObservations('earthquake', data.earthquakes);
             let html = '🌍 Recent Earthquakes:\n';
             data.earthquakes.forEach(eq => {
                 html += `   M${eq.magnitude} at ${eq.place}\n`;
@@ -1752,21 +1402,6 @@ function testWebSocket() {
 
 document.addEventListener('DOMContentLoaded', function() {
     connectWebSocket();
-    syncGlobeRotationButton();
-    try {
-        const savedBasemap = localStorage.getItem('disasterDashboardBasemap');
-        if (savedBasemap && basemapLayers[savedBasemap]) {
-            document.getElementById('mapBasemap').value = savedBasemap;
-            changeBasemap(savedBasemap);
-        }
-        ['region', 'sensors', 'rivers'].forEach(name => {
-            const saved = localStorage.getItem(`disasterDashboardLayer_${name}`);
-            if (saved === null) return;
-            const checkbox = document.getElementById(name === 'region' ? 'showRegionLayer' : name === 'sensors' ? 'showSensorLayer' : 'showRiverLayer');
-            checkbox.checked = saved !== '0';
-            toggleMapLayer(name, checkbox.checked);
-        });
-    } catch (_) { /* Private browsing can disable local storage; controls still work for this page session. */ }
 });
 
 document.addEventListener('visibilitychange', function() {
