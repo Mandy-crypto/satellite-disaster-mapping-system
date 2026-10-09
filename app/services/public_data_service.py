@@ -11,7 +11,7 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
-NWIC_API = "https://www.nwdp.nwic.gov.in/api/3/action"
+NWIC_API = "https://nwdp.nwic.gov.in/api/3/action"
 # NWIC CWC Narmada basin, 2026-2030 telemetry resource. It publishes station
 # metadata and timestamped gauge-level observations through CKAN DataStore.
 NWIC_NARMADA_RESOURCE = "a2e056f6-ed8a-45bf-9142-01dc1904405a"
@@ -28,7 +28,8 @@ class PublicDataService:
     async def _get_client(self):
         if self._client is None or self._client.is_closed:
             self._client = httpx.AsyncClient(timeout=httpx.Timeout(30, connect=10),
-                                              headers={"User-Agent": "disaster-mapping-dashboard/2.1"})
+                                              headers={"User-Agent": "disaster-mapping-dashboard/2.1"},
+                                              follow_redirects=True)
         return self._client
 
     async def current_weather(self, lat: float, lon: float) -> dict[str, Any]:
